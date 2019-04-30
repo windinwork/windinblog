@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>通过字节码看原理，带你去找kotlin中的static方法 | 千熊的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="kotlin在被钦定为Android的官方开发语言后，越来越多的Android开发者投向kotlin的怀抱。尽管kotlin兼容Java，但在使用上还是有很大不同的，就像static关键字，我们可以用companion object来替代static，当我们用反射去调用时，会发现调用时并不像static那样直接，笔者在日常使用中就遇到这样的问题，想拿反射去调用静态方法时无法调用，所以便通过字节码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通过字节码看原理，带你去找kotlin中的static方法">
+<meta property="og:url" content="http://windinpub.com/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/index.html">
+<meta property="og:site_name" content="千熊的博客">
+<meta property="og:description" content="kotlin在被钦定为Android的官方开发语言后，越来越多的Android开发者投向kotlin的怀抱。尽管kotlin兼容Java，但在使用上还是有很大不同的，就像static关键字，我们可以用companion object来替代static，当我们用反射去调用时，会发现调用时并不像static那样直接，笔者在日常使用中就遇到这样的问题，想拿反射去调用静态方法时无法调用，所以便通过字节码">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166dd8283c09e742?w=644&h=437&f=png&s=45209">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166de6e580910641?w=296&h=113&f=png&s=4881">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166dda8ff48082ee?w=298&h=101&f=png&s=4619">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166ddb691cc56c74?w=396&h=245&f=png&s=8292">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166dddb1451b6fd6?w=779&h=277&f=png&s=22093">
+<meta property="og:updated_time" content="2019-04-30T10:02:40.374Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="通过字节码看原理，带你去找kotlin中的static方法">
+<meta name="twitter:description" content="kotlin在被钦定为Android的官方开发语言后，越来越多的Android开发者投向kotlin的怀抱。尽管kotlin兼容Java，但在使用上还是有很大不同的，就像static关键字，我们可以用companion object来替代static，当我们用反射去调用时，会发现调用时并不像static那样直接，笔者在日常使用中就遇到这样的问题，想拿反射去调用静态方法时无法调用，所以便通过字节码">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166dd8283c09e742?w=644&h=437&f=png&s=45209">
+  
+    <link rel="alternate" href="/atom.xml" title="千熊的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://windinpub.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">千熊的博客</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-通过字节码看原理，带你去找kotlin中的static方法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" class="article-date">
+  <time datetime="2018-11-04T09:58:07.000Z" itemprop="datePublished">2018-11-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      通过字节码看原理，带你去找kotlin中的static方法
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p><code>kotlin</code>在被钦定为<code>Android</code>的官方开发语言后，越来越多的<code>Android</code>开发者投向<code>kotlin</code>的怀抱。尽管<code>kotlin</code>兼容<code>Java</code>，但在使用上还是有很大不同的，就像<code>static</code>关键字，我们可以用<code>companion object</code>来替代<code>static</code>，当我们用反射去调用时，会发现调用时并不像<code>static</code>那样直接，笔者在日常使用中就遇到这样的问题，想拿反射去调用静态方法时无法调用，所以便通过字节码的实现来一窥究竟，顺便水一篇文章（●&gt;∀&lt;●）。</p>
+</blockquote>
+<h3 id="一、如何查看kotlin字节码"><a href="#一、如何查看kotlin字节码" class="headerlink" title="一、如何查看kotlin字节码"></a>一、如何查看kotlin字节码</h3><p>我们通过<code>Tools-&gt;Kotlin-&gt;Show Kotlin bytecode</code>打开<code>Kotlin</code>字节码界面，查看<code>Kotlin</code>文件的字节码形式。界面如下：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dd8283c09e742?w=644&amp;h=437&amp;f=png&amp;s=45209" alt></p>
+<h3 id="二、Object单例看static"><a href="#二、Object单例看static" class="headerlink" title="二、Object单例看static"></a>二、Object单例看static</h3><p>在<code>Kotlin</code>中，我们可以通过<code>Object</code>来直接实现一个单例，通过对<code>Object</code>单例中方法的调用来实现类似于<code>Java</code>中<code>static</code>方法的调用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">object MyObject &#123;</span><br><span class="line">    val x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">    public fun foo(): String &#123;</span><br><span class="line">        return x</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于这个简单的<code>Object</code>单例，我们看到的字节码是这样的（省略部分字节码）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private final static Ljava/lang/String; x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">public final getX()Ljava/lang/String;</span><br><span class="line">...</span><br><span class="line">public final setX(Ljava/lang/String;)V</span><br><span class="line">..</span><br><span class="line">public final foo()Ljava/lang/String;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">public final static Lcom/tanzhouedu/testapplication/MyObject; INSTANCE</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，<code>Kotlin</code>在该类中声明了一个<code>INSTANCE</code>的<code>static</code>变量来实现单例效果。</p>
+<p>所以我们在<code>Java</code>语言中调用<code>foo()</code>方法是这样的，即拿<code>到INSTANCE</code>静态变量再继续调用。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166de6e580910641?w=296&amp;h=113&amp;f=png&amp;s=4881" alt></p>
+<h3 id="三、Companion-Object单例看static"><a href="#三、Companion-Object单例看static" class="headerlink" title="三、Companion Object单例看static"></a>三、Companion Object单例看static</h3><p>这一次，我们通过<code>Companion Object</code>伴生对象来实现静态的变量和方法调用，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class MyClass &#123;</span><br><span class="line"></span><br><span class="line">    companion object &#123;</span><br><span class="line">        val x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">        fun foo(): String &#123;</span><br><span class="line">            return x</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看到的字节码是这样的（省略部分字节码）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">// access flags 0x1A</span><br><span class="line">private final static Ljava/lang/String; x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">// access flags 0x19</span><br><span class="line">public final static Lcom/windinwork/myapplication/bytecode/MyClass$Companion; Companion</span><br><span class="line">  </span><br><span class="line">// access flags 0x31</span><br><span class="line">public final class com/windinwork/myapplication/bytecode/MyClass$Companion &#123;</span><br><span class="line">  // access flags 0x11</span><br><span class="line">  public final getX()Ljava/lang/String;</span><br><span class="line">  @Lorg/jetbrains/annotations/NotNull;() // invisible</span><br><span class="line">   L0</span><br><span class="line">    LINENUMBER 6 L0</span><br><span class="line">    INVOKESTATIC com/windinwork/myapplication/bytecode/MyClass.access$getX$cp ()Ljava/lang/String;</span><br><span class="line">    ARETURN</span><br><span class="line">   ...</span><br><span class="line"></span><br><span class="line">  // access flags 0x11</span><br><span class="line">  public final foo()Ljava/lang/String;</span><br><span class="line">   ...</span><br></pre></td></tr></table></figure>
+<p>我们来分析一下这段字节码，可以看到，我们在<code>Companion Object</code>中声明的变量<code>x</code>，编译之后是作为<code>MyClass</code>的静态变量存在，而方法getX()和foo()是作为<code>MyClass$Companion</code>的成员方法存在。我们可以看到，<code>MyClass</code>通过一个静态变量<code>Companion</code>持有<code>MyClass$Companion</code>的引用，所以我们在访问x变量和调用<code>foo()</code>方法时，实质上是通过对<code>Companion</code>这一静态变量进行方法调用，于是我们在Java中对<code>Companion Object</code>单例的调用是这样的</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dda8ff48082ee?w=298&amp;h=101&amp;f=png&amp;s=4619" alt></p>
+<h3 id="四、通过＠JvmStatic实现Java中的静态方法"><a href="#四、通过＠JvmStatic实现Java中的静态方法" class="headerlink" title="四、通过＠JvmStatic实现Java中的静态方法"></a>四、通过＠JvmStatic实现Java中的静态方法</h3><p>通过以上两个例子，我们发现，在我们声明的单例中，变量是采用了<code>static</code>修饰的，我们通过反射可以直接拿到变量。而方法都没有使用<code>static</code>修饰。如果不加处理，在我们用<code>Java</code>进行反射调用时，我们无法对foo()方法像<code>Java</code>的<code>static</code>方法进行直接的反射调用，而要通过<code>Object</code>单例中的<code>INSTANCE</code>或者使用<code>Companion Object</code>单例时的<code>Companion</code>静态变量，间接地进行反射调用。</p>
+<p>那么，我们可不可以像对这些单例的方法，进行<code>Java</code>的<code>static</code>方法的反射调用呢？这时候我们就要使用<code>＠JvmStatic</code>注解。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166ddb691cc56c74?w=396&amp;h=245&amp;f=png&amp;s=8292" alt></p>
+<p>这时候我们就可以看到<code>foo()</code>方法也被<code>static</code>修饰了，这样我们在调用<code>foo()</code>方法的方式和在<code>Java</code>调用时的是一致的了。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dddb1451b6fd6?w=779&amp;h=277&amp;f=png&amp;s=22093" alt></p>
+<h3 id="五、结论"><a href="#五、结论" class="headerlink" title="五、结论"></a>五、结论</h3><p>从上面我们可以看到，如果不通过<code>＠JvmStatic</code>注解，kotlin在字节码中是不产生<code>static</code>方法的，当然我们在<code>kotlin</code>使用中是可以直接调用，如<code>MyClass.foo()</code>的，而放到<code>Java</code>上表现就明显不同了。这篇文章主要是写给<code>Java</code>转向<code>kotlin</code>时对<code>kotlin</code>中<code>static</code>变量和方法实现有疑问的同学，希望能有所帮助。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" data-id="cjv3mk9cn0005a6i751kp2zgu" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2018/11/12/美团多渠道打包工具Walle源码解析/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          美团多渠道打包工具Walle源码解析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/08/30/子弹短信没有附近的人？教你子弹短信开启附近锤友/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">子弹短信没有附近的人？教你子弹短信开启附近锤友</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、如何查看kotlin字节码"><span class="toc-number">1.</span> <span class="toc-text">一、如何查看kotlin字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、Object单例看static"><span class="toc-number">2.</span> <span class="toc-text">二、Object单例看static</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、Companion-Object单例看static"><span class="toc-number">3.</span> <span class="toc-text">三、Companion Object单例看static</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、通过＠JvmStatic实现Java中的静态方法"><span class="toc-number">4.</span> <span class="toc-text">四、通过＠JvmStatic实现Java中的静态方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、结论"><span class="toc-number">5.</span> <span class="toc-text">五、结论</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 windin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>

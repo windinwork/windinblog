@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>使用Gradle编写蒲公英自动上传安装包和更新说明脚本 | 千熊的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Github: https://github.com/windinwork/PgyerGradleApplication  平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。 笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Gradle编写蒲公英自动上传安装包和更新说明脚本">
+<meta property="og:url" content="http://windinpub.com/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/index.html">
+<meta property="og:site_name" content="千熊的博客">
+<meta property="og:description" content="Github: https://github.com/windinwork/PgyerGradleApplication  平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。 笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-30T10:03:23.829Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Gradle编写蒲公英自动上传安装包和更新说明脚本">
+<meta name="twitter:description" content="Github: https://github.com/windinwork/PgyerGradleApplication  平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。 笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐">
+  
+    <link rel="alternate" href="/atom.xml" title="千熊的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://windinpub.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">千熊的博客</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-使用Gradle编写蒲公英自动上传安装包和更新说明脚本" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" class="article-date">
+  <time datetime="2018-12-02T09:58:40.000Z" itemprop="datePublished">2018-12-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用Gradle编写蒲公英自动上传安装包和更新说明脚本
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p>Github: <a href="https://github.com/windinwork/PgyerGradleApplication" target="_blank" rel="noopener">https://github.com/windinwork/PgyerGradleApplication</a></p>
+</blockquote>
+<p>平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。</p>
+<p>笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐着的老大，只好勉为其难地答应发包时写上改动内容T_T。但是懒惰如笔者，当然不会每次发包都手动打字啦，最好能打完包后自动把包和修改信息上传到蒲公英。</p>
+<p>虽然嘴上说着不要不要，但笔者想到写个自动化脚本还是很兴奋的。本来想看看有没有现成的蒲公英自动上传脚本，在网上搜索了一下发现都不是很对胃口，想想还是自己写算了。所以今天花了半天写了这个脚本，在这里也分享一下相关的gradle配置，以供参考。</p>
+<h3 id="一、-自动上传蒲公英"><a href="#一、-自动上传蒲公英" class="headerlink" title="一、 自动上传蒲公英"></a>一、 自动上传蒲公英</h3><p>向蒲公英这样的平台一般提供API用来做一些便利的操作，我们直接打开<a href="https://www.pgyer.com/doc/api#uploadApp" target="_blank" rel="noopener">蒲公英文档</a>，可以看到用于上传安装包的API和示例的上传方法，我们便采用其中的<code>curl</code>的方法上传安装包。</p>
+<p>上传接口的参数中，有三个是必填的，分别的<code>uKey</code>、<code>_api_key</code>和<code>file</code>。<code>uKey</code>和<code>_api_key</code>我们在自己的蒲公英帐号上可以查看到，而<code>file</code>参数需要我们提供<code>apk</code>文件的路径，所以我们先想办法拿到路径。</p>
+<p>这里我们定义一个方法：<code>getApkPath()</code>，通过<code>buildDir</code> + 固定的<code>outputs/apk/${buildType}/app-${buildType}.apk</code>地址来获取<code>apk</code>路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def getApkPath() &#123;</span><br><span class="line">    String buildType = getBuildType().toLowerCase()</span><br><span class="line">    return new File(buildDir, &quot;outputs/apk/$&#123;buildType&#125;/app-$&#123;buildType&#125;.apk&quot;).absolutePath</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>getApkPath()</code>中我们需要知道编译打包和用的<code>buildType</code>，这里定义一个方法<code>getBuildType()</code>进行获取。本人对<code>gradle</code>脚本不太熟悉，暂时通过打包参数来获取相应的<code>buildType</code>，足以应付一般场景。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">def getBuildType() &#123;</span><br><span class="line">    Gradle gradle = getGradle()</span><br><span class="line">    String args = gradle.getStartParameter().getTaskRequests().toString()</span><br><span class="line">    if (args.contains(&quot;assembleRelease&quot;)) &#123;</span><br><span class="line">        return &quot;Release&quot;</span><br><span class="line">    &#125; else if (args.contains(&quot;assembleDebug&quot;)) &#123;</span><br><span class="line">        return &quot;Debug&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    return &quot;Debug&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们把上传命令封装在一个<code>task</code>里：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">task pgyer(type: Exec) &#123;</span><br><span class="line"></span><br><span class="line">    String apiKey = &quot;6767f341ee7ed1f9fd4699e6ed71e773&quot; // todo 这里替换为自己的蒲公英的apiKey</span><br><span class="line">    String userKey = &quot;0cf7164e5158effc01cc24c0667266c4&quot; // todo 这里替换为自己的蒲公英的userKey</span><br><span class="line"></span><br><span class="line">    commandLine &apos;curl&apos;</span><br><span class="line">    args &apos;-k&apos;, &apos;http://www.pgyer.com/apiv1/app/upload&apos;,</span><br><span class="line">            &apos;-F&apos;, &quot;uKey=$&#123;userKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;_api_key=$&#123;apiKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;file=@$&#123;getApkPath()&#125;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样我们就在一个<code>task</code>可以调用啦。进入<code>Terminal</code>，<code>gradlew clean assembleDebug pgyer</code>，<code>gradle</code>脚本便会执行清理、编译打包、上传的工作。等命令执行完，我们便能在蒲公英上看到新鲜出炉的安装包了。</p>
+<h3 id="二、自动添加日志"><a href="#二、自动添加日志" class="headerlink" title="二、自动添加日志"></a>二、自动添加日志</h3><p>笔者目前想到自动从<code>git</code>记录中读取近期的log，进行一定格式化后上传到蒲公英。</p>
+<p>首先我们来读取git的记录：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def getGitLog() &#123;</span><br><span class="line">    return &apos;git log --pretty=format:&quot;%s___in___%ad___by___%an&quot; -10 --date=format:%c&apos;.execute().text</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>%s__in__%ad__by__%an</code>表示内容+日期+作者，<code>-10</code>表示显示最近10条log，<code>--date=format:%c</code>表示输出本地的日期时间。这里发现执行命令时如有空格不能输出<code>git log</code>，所以使用<code>___</code>来代替空格。</p>
+<p>有时我们会想添加自定义的信息进去，所以需要一个参数用于传递自定义的信息，这里将参数定义为<code>pgyerDesc</code>，然后在<code>gradle</code>中获取<code>pgyerDesc</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (project.hasProperty(&quot;pgyerDesc&quot;)) &#123;</span><br><span class="line">    desc = pgyerDesc + &quot;\n&quot; + desc</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于传入的参数<code>pgyerDesc</code>，在<code>Windows</code>中，输入中文会出现乱码，应该是编码格式的问题。笔者用的是<code>Ubuntu</code>系统，所以不会有这个问题的出现。所以这个乱码的情况就交给<code>Windows</code>的同学自己去解决啦。</p>
+<p>好了，整合起来，蒲公英自动上传安装包和日志的<code>gradle</code>脚本就实现了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">task pgyer(type: Exec) &#123;</span><br><span class="line"></span><br><span class="line">    String apiKey = &quot;6767f341ee7ed1f9fd4699e6ed71e773&quot; // todo 这里替换为自己的蒲公英的apiKey</span><br><span class="line">    String userKey = &quot;0cf7164e5158effc01cc24c0667266c4&quot; // todo 这里替换为自己的蒲公英的userKey</span><br><span class="line">    String desc = getGitLog()</span><br><span class="line"></span><br><span class="line">    if (project.hasProperty(&quot;pgyerDesc&quot;)) &#123;</span><br><span class="line">        desc = pgyerDesc + &quot;\n&quot; + desc</span><br><span class="line">    &#125;</span><br><span class="line">    if (desc == null || desc.isEmpty()) &#123;</span><br><span class="line">        desc = &quot;保持沉默&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    commandLine &apos;curl&apos;</span><br><span class="line">    args &apos;-k&apos;, &apos;http://www.pgyer.com/apiv1/app/upload&apos;,</span><br><span class="line">            &apos;-F&apos;, &quot;uKey=$&#123;userKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;_api_key=$&#123;apiKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;file=@$&#123;getApkPath()&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;updateDescription=$&#123;desc&#125;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><p>最后，为了保持功能模块分工清晰和代码复用，我们把新建一个<code>pgyer.gradle</code>的文件，将这个<code>task</code>单独存放起来。再在<code>app</code>的<code>build.gradle</code>中通过<code>apply from</code>的方式引入<code>pgyer.gradle</code>。我们运行<code>gradlew assembleDebug pgyer -P pgyerDesc=&quot;请多多关注&quot;</code>，就可以看到想要的效果了。</p>
+<p>该脚本是在<code>gradle4.4</code>的环境下进行，这里也做了一个<code>Demo</code>放在<a href="https://github.com/windinwork/PgyerGradleApplication" target="_blank" rel="noopener">Github</a>上了，里面的一些参数设置可能根据小伙伴自己的需求再做调整。希望各位能够喜欢这篇蒲公英自动上传脚本的文章。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" data-id="cjv3mk9cb0002a6i76t3ldhcm" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2019/01/28/Android应用集成Office文件能力完全攻略/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          Android应用集成Office文件能力完全攻略
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/11/12/美团多渠道打包工具Walle源码解析/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">美团多渠道打包工具Walle源码解析</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、-自动上传蒲公英"><span class="toc-number">1.</span> <span class="toc-text">一、 自动上传蒲公英</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、自动添加日志"><span class="toc-number">2.</span> <span class="toc-text">二、自动添加日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、总结"><span class="toc-number">3.</span> <span class="toc-text">三、总结</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 windin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>

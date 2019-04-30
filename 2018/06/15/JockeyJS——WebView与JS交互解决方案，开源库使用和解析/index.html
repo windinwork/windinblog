@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>JockeyJS——WebView与JS交互解决方案，开源库使用和解析 | 千熊的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言 在Android上，对于JS交互，往往是通过系统原生提供的@JavascriptInterface这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开@JavascriptInterface的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JockeyJS——WebView与JS交互解决方案，开源库使用和解析">
+<meta property="og:url" content="http://windinpub.com/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/index.html">
+<meta property="og:site_name" content="千熊的博客">
+<meta property="og:description" content="前言 在Android上，对于JS交互，往往是通过系统原生提供的@JavascriptInterface这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开@JavascriptInterface的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-30T09:57:13.485Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JockeyJS——WebView与JS交互解决方案，开源库使用和解析">
+<meta name="twitter:description" content="前言 在Android上，对于JS交互，往往是通过系统原生提供的@JavascriptInterface这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开@JavascriptInterface的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的">
+  
+    <link rel="alternate" href="/atom.xml" title="千熊的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://windinpub.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">千熊的博客</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-JockeyJS——WebView与JS交互解决方案，开源库使用和解析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/" class="article-date">
+  <time datetime="2018-06-15T09:55:52.000Z" itemprop="datePublished">2018-06-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      JockeyJS——WebView与JS交互解决方案，开源库使用和解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
+<p>在Android上，对于JS交互，往往是通过系统原生提供的<code>@JavascriptInterface</code>这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开<code>@JavascriptInterface</code>的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的方法调用和回调有着不错的封装，于是便有了分析JockeyJS一文。</p>
+</blockquote>
+<h3 id="一、JockeyJS基本使用"><a href="#一、JockeyJS基本使用" class="headerlink" title="一、JockeyJS基本使用"></a>一、JockeyJS基本使用</h3><p>JockeyJS是几年前的库了，虽然是比较久的库，但放到现在仍然可用。</p>
+<p>首先，需要在h5页面上引用项目中的<code>jockey.js</code></p>
+<p>接下来在客户端进行配置，JockeyJS主要通过<code>on(String type, JockeyHandler ... handler)</code>和<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code><br>两个方法来实现Java与JS之间的交互。</p>
+<ul>
+<li><p><code>on(String type, JockeyHandler ... handler)</code>这一接口让我们可以在Java上提供给JS需要调用的方法，类似于<code>@JavascriptInterface</code>的功能，<code>type</code>是我们提供的方法名，<code>handler</code>中的回调是我们运行的代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jockey.on(&quot;useJavaMethod&quot;, new JockeyHandler() &#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected void doPerform(Map&lt;Object, Object&gt; payload) &#123;</span><br><span class="line">		// do something</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>用于Java调用JS方法，<code>type</code>是调用的方法名，<code>toWebView</code>是调用的webView，<code>withPayload</code>是参数，会转成json传递，<code>complete</code>是调用成功后的回调。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jockey.send(&quot;useJsFuntion&quot;, webView, null, new JockeyCallback() &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void call() &#123;</span><br><span class="line">		// secceed to use js function</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="二、JockeyJS原理解析"><a href="#二、JockeyJS原理解析" class="headerlink" title="二、JockeyJS原理解析"></a>二、JockeyJS原理解析</h3><p>参考JockeyJS提供的demo，在JockeyJS生效前，需要进行以下设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jockey = JockeyImpl.getDefault();</span><br><span class="line">jockey.configure(webView);</span><br><span class="line">setJockeyEvents();</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>JockeyImpl.getDefault()</code>这里提供了对<code>Jockey</code>接口的默认实现，也就是对于JS交互这一核心功能的实现。</li>
+<li><code>jockey.configure(webView)</code>向JockeyJS传入webView，JockeyJS会对webView进行<code>setJavaScriptEnabled(boolean)</code>和<code>setWebViewClient(WebViewClient)</code>的设置。</li>
+<li><code>setJockeyEvents()</code>即一系列的<code>on(String type, JockeyHandler ... handler)</code>操作，添加可供调用的Java方法。</li>
+</ul>
+<p>这样的话我们主要关注<code>JockeyImpl.getDefault()</code>的实现。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static Jockey getDefault() &#123;</span><br><span class="line">	return new DefaultJockeyImpl();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见该方法返回的是<code>DefaultJockeyImpl</code>。跟进<code>DefaultJockeyImpl</code>，发现该类也是继承了<code>JockeyImpl</code>类的，我们先来看<code>DefaultJockeyImpl</code>实现。主要看<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>。</p>
+<h4 id="1-Java调用JS的实现"><a href="#1-Java调用JS的实现" class="headerlink" title="1. Java调用JS的实现"></a>1. Java调用JS的实现</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public void send(String type, WebView toWebView, Object withPayload, JockeyCallback complete) &#123;</span><br><span class="line">	int messageId = messageCount;</span><br><span class="line"></span><br><span class="line">	if (complete != null) &#123;</span><br><span class="line">		add(messageId, complete);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if (withPayload != null) &#123;</span><br><span class="line">		withPayload = gson.toJson(withPayload);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	String url = String.format(&quot;javascript:Jockey.trigger(\&quot;%s\&quot;, %d, %s)&quot;,</span><br><span class="line">			type, messageId, withPayload);</span><br><span class="line">	toWebView.loadUrl(url);</span><br><span class="line"></span><br><span class="line">	++messageCount;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法中有一个<code>messageId</code>，这个<code>messageId</code>是做什么用的放在之后再解析。<code>withPayload</code>这个容易理解，是用来传递参数的。接下来，webView进行<code>loadUrl(String url)</code>，这个url是<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>方法的关键。url的格式是<code>javascript:Jockey.trigger(\&quot;%s\&quot;, %d, %s)</code>，即调用了Html的<code>window.Jockey.trigger(type, messageId, json)</code>方法，JS会通过type去匹配相对应的函数并且调用，JS层的具体实现这里不讲。</p>
+<p>在和JS交互的业务中，往往需要在调用完JS函数后有一个回调，以便通知我们该函数运行完成，可以继续后续操作。JockeyJS已经集成了这一逻辑。当调用<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>时，会将一个自增的<code>messageId</code>和一个<code>JockeyCallback</code>一一对应保存在<code>_callbacks</code>变量中，Java层将<code>messageId</code>和函数名一起传给JS，JS在运行完相关函数后，会使用该<code>messageId</code>通知Java（通知方式见<code>JS调用Java的实现</code>），Java层的JackeyJS通过<code>messageId</code>找到<code>JockeyCallback</code>并调用来完成回调。这一层逻辑不暴露给开发者，开发者只需要关心JockeyCallback的实现，大大方便了回调的处理。</p>
+<h4 id="2-JS调用Java的实现"><a href="#2-JS调用Java的实现" class="headerlink" title="2. JS调用Java的实现"></a>2. JS调用Java的实现</h4><p>JS调用Java不通过<code>@JavascriptInterface</code>，那是怎么调用的呢？通过<code>JockeyImpl</code>类可以找到，JockeyJS对webView设置了自己的<code>JockeyWebViewClient</code>，<code>JockeyWebViewClient</code>的特别之处在于重写了<code>shouldOverrideUrlLoading(WebView view, String url)</code>方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">	...</span><br><span class="line">	if (isJockeyScheme(uri)) &#123;</span><br><span class="line">		processUri(view, uri);</span><br><span class="line">		return true;</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里<code>isJockeyScheme(uri)</code>对url进行了判断：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public boolean isJockeyScheme(URI uri) &#123;</span><br><span class="line">	return uri.getScheme().equals(&quot;jockey&quot;) &amp;&amp; !uri.getQuery().equals(&quot;&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当url的scheme为<code>jockey</code>时，即url是以jockey://xxx这种格式存在时，JockeyJS会对该url进行拦截，交给应用自己处理，调用<code>processUri(WebView view, URI uri)</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public void processUri(WebView view, URI uri)</span><br><span class="line">		throws HostValidationException &#123;</span><br><span class="line">	String[] parts = uri.getPath().replaceAll(&quot;^\\/&quot;, &quot;&quot;).split(&quot;/&quot;);</span><br><span class="line">	String host = uri.getHost();</span><br><span class="line"></span><br><span class="line">	JockeyWebViewPayload payload = checkPayload(_gson.fromJson(</span><br><span class="line">			uri.getQuery(), JockeyWebViewPayload.class));</span><br><span class="line"></span><br><span class="line">	if (parts.length &gt; 0) &#123;</span><br><span class="line">		if (host.equals(&quot;event&quot;)) &#123;</span><br><span class="line">			getImplementation().triggerEventFromWebView(view, payload);</span><br><span class="line">		&#125; else if (host.equals(&quot;callback&quot;)) &#123;</span><br><span class="line">			getImplementation().triggerCallbackForMessage(</span><br><span class="line">					Integer.parseInt(parts[0]));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>JockeyJS从url中取出host和parts，判断host为”event”时，JockeyJS调用<code>getImplementation().triggerEventFromWebView</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">protected void triggerEventFromWebView(final WebView webView,</span><br><span class="line">		JockeyWebViewPayload envelope) &#123;</span><br><span class="line">	final int messageId = envelope.id;</span><br><span class="line">	String type = envelope.type;</span><br><span class="line"></span><br><span class="line">	if (this.handles(type)) &#123;</span><br><span class="line">		JockeyHandler handler = _listeners.get(type);</span><br><span class="line"></span><br><span class="line">		handler.perform(envelope.payload, new OnCompletedListener() &#123;</span><br><span class="line">			@Override</span><br><span class="line">			public void onCompleted() &#123;</span><br><span class="line">				_handler.post(new Runnable() &#123;</span><br><span class="line">					@Override</span><br><span class="line">					public void run() &#123;</span><br><span class="line">						triggerCallbackOnWebView(webView, messageId);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>JockeyJS通过<code>envelope.type</code>从<code>_listeners</code>拿到对应的<code>JockeyHandler</code>，这些<code>JockeyHandler</code>就是我们初始化JockeyJS时通过<code>on(String type, JockeyHandler ... handler)</code>加入的。接着<code>perform(Map&lt;Object, Object&gt; payload, OnCompletedListener listener)</code>调用<code>doPerform(Map&lt;Object, Object&gt; payload)</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protected void doPerform(Map&lt;Object, Object&gt; payload) &#123;</span><br><span class="line">	for (JockeyHandler handler : _handlers)</span><br><span class="line">		handler.perform(payload, this._accumulator);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到是对我们注册的<code>JockeyHandler</code>进行调用，这样便实现了JS对Java方法的调用。</p>
+<p>单单到这一步还没完成JockeyJS的这一调用流程，接下来成JockeyJS会在<code>doPerform(Map&lt;Object, Object&gt; payload)</code>完成后，通过<code>triggerCallbackOnWebView(webView, messageId)</code>回调JS，通知JS层方法已执行完毕，由JS去执行后续操作。</p>
+<p><code>triggerCallbackOnWebView(webView, messageId)</code>的实现类似于<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>，在此就不赘述。</p>
+<p>回到host的判断，还有一种host为”callback”的情况，此时JockeyJS会调用<code>getImplementation().triggerCallbackForMessage(int messageId)</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">protected void triggerCallbackForMessage(int messageId) &#123;</span><br><span class="line">	try &#123;</span><br><span class="line">		JockeyCallback complete = _callbacks.get(messageId, _DEFAULT);</span><br><span class="line">		complete.call();</span><br><span class="line">	&#125; catch (Exception e) &#123;</span><br><span class="line">		e.printStackTrace();</span><br><span class="line">	&#125;</span><br><span class="line">	_callbacks.remove(messageId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>很简单，该方法是通知messageId从_callbacks中取出JockeyCallback并调用，即在上文中提到的<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>接收JS回调的实现。</p>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><p>JockeyJS无疑是封装良好的用于JS交互的库，不仅仅适用于Android，也兼容iOS平台。通过<code>webView.loadUrl(&quot;javascript:xxx&quot;)</code>和<code>shouldOverrideUrlLoading(WebView view, String url)</code>方法达到Java和JS的相互调用，并封装了回调逻辑，大大方便业务的开发。当然，随着项目业务需求的增加，JockeyJS还是有可以优化的空间，但是JockeyJS的整体封装值得参考，特别是对于初始项目，可以在JS交互上少走一点弯路。感兴趣的同学也可以继续阅读JockeyJS在JS层和iOS层的代码实现。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/" data-id="cjv3mk9cv0008a6i720o862pg" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2018/08/12/非侵入式无权限应用内悬浮窗的实现/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          非侵入式无权限应用内悬浮窗的实现
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一、JockeyJS基本使用"><span class="toc-number">2.</span> <span class="toc-text">一、JockeyJS基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、JockeyJS原理解析"><span class="toc-number">3.</span> <span class="toc-text">二、JockeyJS原理解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Java调用JS的实现"><span class="toc-number">3.1.</span> <span class="toc-text">1. Java调用JS的实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-JS调用Java的实现"><span class="toc-number">3.2.</span> <span class="toc-text">2. JS调用Java的实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、总结"><span class="toc-number">4.</span> <span class="toc-text">三、总结</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 windin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>

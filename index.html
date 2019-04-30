@@ -66,10 +66,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-Flutter状态管理学习手册二——Redux" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/04/30/hello-world/" class="article-date">
-  <time datetime="2019-04-30T09:25:25.205Z" itemprop="datePublished">2019-04-30</time>
+    <a href="/2019/04/04/Flutter状态管理学习手册二——Redux/" class="article-date">
+  <time datetime="2019-04-04T10:00:56.000Z" itemprop="datePublished">2019-04-04</time>
 </a>
     
   </div>
@@ -80,7 +80,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/30/hello-world/">Hello World</a>
+      <a class="article-title" href="/2019/04/04/Flutter状态管理学习手册二——Redux/">Flutter状态管理学习手册二——Redux</a>
     </h1>
   
 
@@ -90,20 +90,632 @@
       
         <!-- Table of Contents -->
         
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <blockquote>
+<p>上一篇讲到了一个简单的状态管理架构—— <a href="https://juejin.im/post/5ca2c0266fb9a05e345bcdd4" target="_blank" rel="noopener">ScopedModel</a> , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：<a href="https://github.com/windinwork/flutter_redux_app" target="_blank" rel="noopener">https://github.com/windinwork/flutter_redux_app</a></p>
+</blockquote>
+<h3 id="一、Redux-的准备工作"><a href="#一、Redux-的准备工作" class="headerlink" title="一、Redux 的准备工作"></a>一、Redux 的准备工作</h3><p>Redux 的概念源于 React，对于不是从事前端工作或者没有接触过 React 的人要理解 Redux 会比较繁复。对于不了解 Redux 的小伙伴，这里有两篇很不错的文章介绍了 Redux 的概念和相关知识：</p>
+<p><a href="http://www.ruanyifeng.com/blog/2016/09/redux_tutorial_part_one_basic_usages.html" target="_blank" rel="noopener">Redux 入门教程（一）：基本用法</a></p>
+<p><a href="http://www.ruanyifeng.com/blog/2016/09/redux_tutorial_part_two_async_operations.html" target="_blank" rel="noopener">Redux 入门教程（二）：中间件与异步操作</a></p>
+<h3 id="二、Redux的概念"><a href="#二、Redux的概念" class="headerlink" title="二、Redux的概念"></a>二、Redux的概念</h3><p>学习后 Redux 可以了解到，Redux 主要由涉及下面几种概念：</p>
+<ul>
+<li>Store，是保存数据的地方。整个应用只能有一个 Store 。Store 有十分重要的方法 dispatch(action) 来发送 Action。</li>
+<li>State，是某个时间点的数据快照， 一个 State 对应一个 View。只要 State 相同，View 就相同。</li>
+<li>Action，是 View 发出的通知，通过 Reducer 使 State 发生变化。</li>
+<li>Reducer，是一个纯函数，接受 Action 和当前 State 作为参数，返回一个新的 State。</li>
+<li>Middleware，中间件，它的操作在发出 Action 和执行 Reducer 这两步之间发生，用于增加额外功能，如处理异步操作或者打印日志功能等。</li>
+</ul>
+<p>Redux 的工作流程如图所示，先用户发出 Action ，Store自动给 Middleware 进行处理，再传递给 Reducer ， Reducer 会返回新的 State ，通过 Store 触发重新渲染 View。这里的 View 在 Flutter 中以 Widget 的形式存在。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/4/169e7200b2f3f0ad?w=760&amp;h=392&amp;f=png&amp;s=12109" alt></p>
+<p>以上这部分是 Redux 的内容，比较容易理解。</p>
+<h3 id="三、Flutter中Redux的使用"><a href="#三、Flutter中Redux的使用" class="headerlink" title="三、Flutter中Redux的使用"></a>三、Flutter中Redux的使用</h3><p>在 Flutter 中，我们除了引入 redux 第三方库之外，还要引入 flutter_redux 第三方库 ，并且，为了对异步操作有更好的支持，还要引入 redux_thunk 库作为 Middleware ，对 thunk action 有更好的支持。</p>
+<p>下面来了解 flutter_redux 中的概念。</p>
+<ol>
+<li><p>StoreProvider ，是一个基础 Widget ，一般在应用的入口处作为父布局使得，用于传递 Store 。</p>
+</li>
+<li><p>StoreConnector ，一个可以获取 Store 的 Widget ，作用是响应 Store 发出的状态改变事件来重建 UI。</p>
+</li>
+</ol>
+<ul>
+<li><p><code>StoreConnector</code> 中有两个标记为@required 的参数，一个是 converter ， converter 用于将 store 中的 state 转化为 viewModel，另一个是 builder，builder 的作用是将 viewModel 进一步转化为 UI 布局。</p>
+</li>
+<li><p><code>StoreConnector</code> 有一个值得一提的函数：onInit，在这个函数中可以执行初始化操作。</p>
+</li>
+</ul>
+<ol start="3">
+<li>对于异步操作，我们引入了 redux_thunk 库，redux_thunk 库是一个中间件，它会处理 thunkAction。thunkAction 是只包含一个 Store 类型参数的函数。</li>
+</ol>
+<p>通过 StoreProvider 和 StoreConnector 就可以在 Flutter 实现 Redux 的功能了，接下来是具体实践。</p>
+<h3 id="四、Redux-的实践"><a href="#四、Redux-的实践" class="headerlink" title="四、Redux 的实践"></a>四、Redux 的实践</h3><p>这里以常见的获取列表选择列表为例子。一个页面用于展示选中项和跳转到列表，一个页面用于显示列表。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/4/169e66de9a14380d?w=370&amp;h=672&amp;f=gif&amp;s=603185" alt></p>
+<h4 id="1-引入-Redux-的第三方库"><a href="#1-引入-Redux-的第三方库" class="headerlink" title="1. 引入 Redux 的第三方库"></a>1. 引入 Redux 的第三方库</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redux: ^3.0.0</span><br><span class="line">flutter_redux: ^0.5.3</span><br><span class="line">redux_thunk: ^0.2.1</span><br></pre></td></tr></table></figure>
+<h4 id="2-创建-Store"><a href="#2-创建-Store" class="headerlink" title="2. 创建 Store"></a>2. 创建 Store</h4><p>Store 全局只有一个，这里封装一个创建 Store 的方法。创建Store时，传入 Reducer ，初始化的 State 和 Middleware 。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Store&lt;AppState&gt; createStore() &#123;</span><br><span class="line">  return Store(appReducer, initialState: AppState.initial(), middleware: [</span><br><span class="line">    // 引入 thunk action 的中间件</span><br><span class="line">    thunkMiddleware</span><br><span class="line">  ]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="3-创建-State"><a href="#3-创建-State" class="headerlink" title="3. 创建 State"></a>3. 创建 State</h4><p>State 状态，需要创建一个 <code>AppState</code>，作为整个应用的 state，除此之外，根据不同的页面可以有不同的 State，比如有一个列表页面 <code>ListPage</code> ，就可以有一个列表状态 <code>ListState</code> ，并且 <code>ListState</code> 会放在 <code>AppState</code> 中作为成员变量进行管理。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// app state</span><br><span class="line">class AppState &#123;</span><br><span class="line">  ListState listState;</span><br><span class="line"></span><br><span class="line">  AppState(this.listState);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// list state</span><br><span class="line">class ListState &#123;</span><br><span class="line">  bool _init = false; // 列表初始化标志</span><br><span class="line">  List&lt;String&gt; _list = []; // 列表数据</span><br><span class="line">  String _selected = &apos;未选中&apos;; // 选中的列表项</span><br><span class="line">  </span><br><span class="line">  ListState(this._init, this._list, this._selected);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-创建-Action"><a href="#4-创建-Action" class="headerlink" title="4. 创建 Action"></a>4. 创建 Action</h4><p>Action 是 Widget 在用户操作后发出的通知。对于 <code>ListPage</code> 页面，创建一个 <code>list_action.dart</code> 文件，用于存在可发出的 Action 。在示例中，需要用到两个 Action 。一个是加载完成列表数据后发出的 Action ，用于刷新列表，一个是选中列表项时发出的 Action 。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 加载完成列表数据</span><br><span class="line"> */</span><br><span class="line">class FetchListAction &#123;</span><br><span class="line">  List&lt;String&gt; list;</span><br><span class="line"></span><br><span class="line">  FetchListAction(this.list);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 选择列表</span><br><span class="line"> */</span><br><span class="line">class SelectItemAction &#123;</span><br><span class="line">  String selected;</span><br><span class="line"></span><br><span class="line">  SelectItemAction(this.selected);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="5-创建-Reducer"><a href="#5-创建-Reducer" class="headerlink" title="5. 创建 Reducer"></a>5. 创建 Reducer</h4><p>Reducer 是一个带 State 和 Action 两个参数的纯函数，在这里，只需要关心根据传入的 Action 和旧的 State，返回一个新的 State。</p>
+<p>和 State 一样，reducer 也分为应用的 <code>app_reducer</code> 和列表页面的 <code>list_reducer</code>。</p>
+<p>Reducer是纯函数。在示例中通过 <code>app_reducer</code> 返回一个新的 <code>AppState</code> ，通过 <code>list_reducer</code> 分别对 <code>FetchListAction</code> 和 <code>SelectItemAction</code> 进行处理返回一个新的 <code>ListState</code> 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AppState appReducer(AppState state, dynamic action) &#123;</span><br><span class="line">  return AppState(listReducer(state.listState, action));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ListState listReducer(ListState pre, dynamic action) &#123;</span><br><span class="line">  if (action is FetchListAction) &#123;</span><br><span class="line">    return ListState(true, action.list, pre.selected);</span><br><span class="line">  &#125;</span><br><span class="line">  if (action is SelectItemAction) &#123;</span><br><span class="line">    return ListState(pre.isInit, pre.list, action.selected);</span><br><span class="line">  &#125;</span><br><span class="line">  return pre;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="6-使用-Thunk-Action"><a href="#6-使用-Thunk-Action" class="headerlink" title="6. 使用 Thunk Action"></a>6. 使用 Thunk Action</h4><p>在创建 Store 时引入了 <code>thunkMiddleware</code> ，使得项目支持 thunk action。</p>
+<p>项目中需要一个加载列表的异步操作，可通过 thunk action 实现具体操作，注意 <code>ThunkAction</code> 是只有一个 <code>store</code> 参数的函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ThunkAction&lt;AppState&gt; fetchList = (Store&lt;AppState&gt; store) async &#123;</span><br><span class="line">  // 模拟网络请求</span><br><span class="line">  await Future.delayed(Duration(milliseconds: 3000));</span><br><span class="line">  var list = [</span><br><span class="line">    &quot;1. Redux State Management&quot;,</span><br><span class="line">    &quot;2. Redux State Management&quot;,</span><br><span class="line">    &quot;3. Redux State Management&quot;,</span><br><span class="line">    &quot;4. Redux State Management&quot;,</span><br><span class="line">    &quot;5. Redux State Management&quot;,</span><br><span class="line">    &quot;6. Redux State Management&quot;,</span><br><span class="line">    &quot;7. Redux State Management&quot;,</span><br><span class="line">    &quot;8. Redux State Management&quot;,</span><br><span class="line">    &quot;9. Redux State Management&quot;,</span><br><span class="line">    &quot;10. Redux State Management&quot;</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  store.dispatch(FetchListAction(list));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="7-UI-布局"><a href="#7-UI-布局" class="headerlink" title="7. UI 布局"></a>7. UI 布局</h4><p>通过以上代码，我们做好了 Redux 的准备工作。接下来便可以布局页面。</p>
+<p>① 在 <code>main.dart</code> 中，要做的工作是创建 Store，和使用 StoreProider 作为根布局。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">  // 创建Store</span><br><span class="line">  var store = createStore();</span><br><span class="line">  // 使用StoreProvider作为根布局</span><br><span class="line">  return StoreProvider&lt;AppState&gt;(</span><br><span class="line">      store: store,</span><br><span class="line">      child: MaterialApp(</span><br><span class="line">        title: &apos;Flutter Demo&apos;,</span><br><span class="line">        theme: ThemeData(</span><br><span class="line">          primarySwatch: Colors.blue,</span><br><span class="line">        ),</span><br><span class="line">        home: ShowPage(),</span><br><span class="line">      ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>② <code>show_page.dart</code> ，用于显示选中的列表项和提供跳转到 <code>ListPage</code> 的按钮入口。</p>
+<p><code>show_page.dart</code> 中，选中的列表项的数据来自于 Store，所以这里使用 StoreConnector 来根据数据构建 UI 界面。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">StoreConnector&lt;AppState, String&gt;(</span><br><span class="line">  converter: (store) =&gt; store.state.listState.selected,</span><br><span class="line">  builder: (context, selected) &#123;</span><br><span class="line">    return Text(selected);</span><br><span class="line">  &#125;,</span><br><span class="line">),</span><br></pre></td></tr></table></figure>
+<p>从上面可见，StoreConnector 需要两个泛型，一个是我们创建的 AppState，另一个是 ViewModel，这里我们直接将 String 作为 ViewModel。</p>
+<p>StoreConnector 要定义两个函数，一个是 converter，从 Store 中拿出选中的列表项数据 store.state.listState.selected，另一个是 builder，将 converter 返回的 selected 进一步转化为界面：Text(selected)。</p>
+<p>这就是 StoreConnector 的用法。</p>
+<p>③ list_page.dart</p>
+<p><code>list_page.dart</code> 中的内容比较重点，里面实现了加载列表和点击列表的功能。</p>
+<p><code>list_page.dart</code> 中一开始要显示加载中的界面，等待数据成功加载后显示列表界面。这里也是用 StoreConnector 构建 UI。StoreConnector 将 AppState 转换为 ListState，通过 ListState 判断当前显示 loading 界面还是列表界面。</p>
+<p>另外，在 StoreConnector 的 onInit 函数中执行加载列表的操作。</p>
+<p>由于加载列表是一个异步操作，所以要用到之前定义的 <code>fetchList</code> 的 thunk action，这里通过 <code>store.dispatch(fetchList)</code> 来执行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">StoreConnector&lt;AppState, ListState&gt;(</span><br><span class="line">    // 初始化时加载列表</span><br><span class="line">    onInit: (store) &#123;</span><br><span class="line">  if (!store.state.listState.isInit) &#123;</span><br><span class="line">    store.dispatch(fetchList);</span><br><span class="line">  &#125;</span><br><span class="line">  // 将store的state转化为viewModel</span><br><span class="line">&#125;, converter: (store) &#123;</span><br><span class="line">  return store.state.listState;</span><br><span class="line">  // 通过viewModel更新界面</span><br><span class="line">&#125;, builder: (contxet, state) &#123;</span><br><span class="line">  // 根据状态显示界面</span><br><span class="line">  if (!state.isInit) &#123;</span><br><span class="line">    // 显示loading界面</span><br><span class="line">    return buildLoad();</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    // 显示列表界面</span><br><span class="line">    var list = state.list;</span><br><span class="line">    return buildList(list);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>另外，点击列表时也要发出一个选中列表项目的 Action ，即之前定义的 <code>SelectItemAction</code> 。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var store = StoreProvider.of&lt;AppState&gt;(context);</span><br><span class="line">store.dispatch(SelectItemAction(list[index]));</span><br><span class="line">// 返回到上一级页面</span><br><span class="line">Navigator.pop(context);</span><br></pre></td></tr></table></figure></p>
+<p><code>store.dispatch(action)</code> 发出的 Action 经过 Middleware 和 Reducer 的处理后，转变成 State，StoreConnector 就会自动地根据 State 重建 UI。</p>
+<p>这样，一个使用 Redux 架构的应用就基本成型了。完整代码可以参考<a href="https://github.com/windinwork/flutter_redux_app" target="_blank" rel="noopener">https://github.com/windinwork/flutter_redux_app</a></p>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>在 Redux 中，数据总是”单向流动”的，保证了流程的清晰。相对于 ScopedModel 的架构， Redux 无疑更加规范，更易于开发和维护。只是， Redux 会相对地增加复杂性，所以，简单小型的项目可以不需要去考虑引进 Redux 这种架构，但对于大型的 Flutter 项目来说， Redux 就十分有用的架构。</p>
+<h3 id="六、思考"><a href="#六、思考" class="headerlink" title="六、思考"></a>六、思考</h3><p>由于 Redux 只有一个应用只有一个 Store ，所以应用需要对整个 AppState 进行维护，在大型客户端代码迭代过程中，会和组件化和单独模块编译运行这种需求相矛盾，这是否会阻碍 Redux 成为大型项目采用的主要架构的因素呢？</p>
+<h3 id="参考目录"><a href="#参考目录" class="headerlink" title="参考目录"></a>参考目录</h3><p><a href="https://medium.com/flutterpub/flutter-redux-thunk-27c2f2b80a3b" target="_blank" rel="noopener">Flutter Redux Thunk, an example finally.</a></p>
+<p><a href="https://blog.novoda.com/introduction-to-redux-in-flutter/" target="_blank" rel="noopener">Introduction to Redux in Flutter</a></p>
+<p><a href="https://github.com/roughike/inKino" target="_blank" rel="noopener">官网推荐 Sample：inKino</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2019/04/30/hello-world/" data-id="cjv3lbrq90000xmi7cb9pxi63" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2019/04/04/Flutter状态管理学习手册二——Redux/" data-id="cjv3mk9by0000a6i70k3sahzd" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-Flutter状态管理学习手册一——ScopedModel" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" class="article-date">
+  <time datetime="2019-04-02T10:00:36.000Z" itemprop="datePublished">2019-04-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/">Flutter状态管理学习手册一——ScopedModel</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <h3 id="一、ScopedModel简介"><a href="#一、ScopedModel简介" class="headerlink" title="一、ScopedModel简介"></a>一、ScopedModel简介</h3><p><code>ScopedModel</code>属于入门级别的状态管理框架，它的思想比较简单，参考官方文档便可以很容易理解其中构架。</p>
+<p>在<code>Flutter</code>中<code>Lifting state up</code>(状态提升)是十分必要的，状态提升可以理解为把组件之间相互共享的状态提取出来放在一个较高层级中管理的一种思想。<code>ScopedModel</code>提供了对于这种状态管理的便利。</p>
+<h3 id="二、ScopedModel中的三个概念"><a href="#二、ScopedModel中的三个概念" class="headerlink" title="二、ScopedModel中的三个概念"></a>二、ScopedModel中的三个概念</h3><p><code>ScopedModel</code>主要有三个重要的概念，也是其中的三个类：<code>Model</code>、<code>ScopedModel</code>和<code>ScopedModelDescendant</code>。<code>ScopedModel</code>基本上通过这三个类实现其功能。</p>
+<p><code>Model</code>是封装状态和状态操作的地方。我们可以将想要的数据存放在<code>Model</code>当中并且将对数据操作，如添加删除的相关方法放在这里。<code>Model</code>还提供了一个<code>notifyListeners()</code>方法，它的作用是当数据发生改变时，可以通过调用<code>notifyListeners()</code>方法通知界面进行更新。</p>
+<p><code>ScopedModel</code>是一个用于保存<code>Model</code>的<code>Widget</code>。通常<code>ScopedModel</code>会一个应用的入口处作为父布局使用，并以<code>Model</code>作为参数传入，使得<code>ScopedModel</code>持有<code>Model</code>。</p>
+<p>在<code>ScopedModel</code>的子布局中，可以通过<code>ScopedModel.of&lt;Model&gt;(context)</code>方法来获取<code>Model</code>。</p>
+<p><code>ScopedModelDescendant</code>，顾名思义，是<code>ScopedModel</code>的派生物。同样的，它也是一个<code>Widget</code>。<code>ScopedModelDescendant</code>会作为<code>ScopedModel</code>下的子布局存在，它的主要作用是响应状态更新。</p>
+<p><code>ScopedModelDescendant</code>中存在<code>builder</code>函数，这个函数会在<code>Model</code>的<code>notifyListeners()</code>发生时被调用，从而根据<code>Model</code>中的数据生成相应的界面。</p>
+<h3 id="三、ScopedModel的实践"><a href="#三、ScopedModel的实践" class="headerlink" title="三、ScopedModel的实践"></a>三、ScopedModel的实践</h3><p>这里以常见的获取列表选择列表为例子。一个页面用于展示选中项和跳转到列表，一个页面用于显示列表。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/2/169dcb52f5294fa4?w=400&amp;h=720&amp;f=gif&amp;s=711487" alt></p>
+<h4 id="1-引入scoped-model第三方库"><a href="#1-引入scoped-model第三方库" class="headerlink" title="1. 引入scoped_model第三方库"></a>1. 引入<code>scoped_model</code>第三方库</h4><p>在根目录的<code>pubspec.yaml</code>文件的<code>dependencies</code>中加入依赖<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies:</span><br><span class="line">  ...</span><br><span class="line">  scoped_model: ^1.0.0</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-定义Model"><a href="#2-定义Model" class="headerlink" title="2. 定义Model"></a>2. 定义<code>Model</code></h4><p>创建一个<code>ListModel</code>类，这个类需要继承<code>scoped_model</code>包里的<code>Model</code>类。</p>
+<p><code>ListModel</code>类中包含三个状态：列表初始化标志、列表数据、选中的列表项。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bool _init = false; // 列表初始化标志</span><br><span class="line">List&lt;String&gt; _list = []; // 列表数据</span><br><span class="line">String _selected = &apos;未选中&apos;; // 选中的列表项</span><br></pre></td></tr></table></figure></p>
+<p>在<code>Model</code>中不仅只有数据，还包括对数据操作的方法，这里定义两个操作方法，分别是选中列表项目和加载列表的方法，并且，这两个方法在更新数据后，需要调用<code>notifyListeners()</code>通知UI更新。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 选中列表项</span><br><span class="line"> */</span><br><span class="line">void select(String selected) &#123;</span><br><span class="line">  _selected = selected;</span><br><span class="line"></span><br><span class="line">  // 通知数据变更</span><br><span class="line">  notifyListeners();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 加载列表</span><br><span class="line"> */</span><br><span class="line">void loadList() async &#123;</span><br><span class="line">  // 模拟网络请求</span><br><span class="line">  await Future.delayed(Duration(milliseconds: 3000));</span><br><span class="line">  _list = [</span><br><span class="line">    &apos;1. Scoped Model&apos;,</span><br><span class="line">    &apos;2. Scoped Model&apos;,</span><br><span class="line">    &apos;3. Scoped Model&apos;,</span><br><span class="line">    &apos;4. Scoped Model&apos;,</span><br><span class="line">    &apos;5. Scoped Model&apos;,</span><br><span class="line">    &apos;6. Scoped Model&apos;,</span><br><span class="line">    &apos;7. Scoped Model&apos;,</span><br><span class="line">    &apos;8. Scoped Model&apos;,</span><br><span class="line">    &apos;9. Scoped Model&apos;,</span><br><span class="line">    &apos;10. Scoped Model&apos;</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  _init = true;</span><br><span class="line">  // 通知数据变更</span><br><span class="line">  notifyListeners();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="3-UI布局"><a href="#3-UI布局" class="headerlink" title="3. UI布局"></a>3. UI布局</h4><p>在UI上，使用<code>ScopedModel</code>作为根布局，提供<code>Model</code>，使用<code>ScopedModelDescendant</code>作为子布局，响应<code>Model</code>。</p>
+<p>首先，在<code>main()</code>方法中，创建<code>ListModel</code>实例，用<code>ScopedModel</code>包裹MyApp布局<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">void main() &#123;</span><br><span class="line"></span><br><span class="line">  // 创建Model实例</span><br><span class="line">  ListModel listModel = ListModel();</span><br><span class="line">  // 使用ScopedModel作为根布局</span><br><span class="line">  runApp(ScopedModel(model: listModel, child: MyApp()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>为了体现状态提升这一概念，例子中使用两个页面，一个是<code>ShowPage</code>，另一个是<code>ListPage</code>。<code>ShowPage</code>用于显示选中的列表项目和提供跳转到<code>ListPage</code>的入口，<code>ListPage</code>用于加载显示列表。</p>
+<p>在<code>ShowPage</code>中，显示<code>ListModel</code>中的选中项。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ScopedModelDescendant&lt;ListModel&gt;(</span><br><span class="line">  builder: (context, child, model) &#123;</span><br><span class="line">    String selected = model.selected;</span><br><span class="line">    return Text(selected);</span><br><span class="line">  &#125;</span><br><span class="line">),</span><br></pre></td></tr></table></figure></p>
+<p><code>ScopedModelDescendant</code>的泛型指明<code>ListModel</code>，它便会自动获取<code>ScopedModel</code>中的<code>ListModel</code>，在<code>builder: (context, child, model)</code>中即可通过其中的<code>model</code>参数获取状态，构建UI。</p>
+<p>同样的，在<code>ListPage</code>中，通过<code>ScopedModelDescendant</code>来显示加载状态和列表。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">body: ScopedModelDescendant&lt;ListModel&gt;(builder: (context, child, model) &#123;</span><br><span class="line">        // 根据状态显示界面</span><br><span class="line">        if (!model.isInit) &#123;</span><br><span class="line">          // 显示loading界面</span><br><span class="line">          return buildLoad();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">          // 显示列表界面</span><br><span class="line">          var list = model.list;</span><br><span class="line">          return buildList(list);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;),</span><br></pre></td></tr></table></figure></p>
+<h4 id="4-状态改变"><a href="#4-状态改变" class="headerlink" title="4. 状态改变"></a>4. 状态改变</h4><p><code>ListPage</code>是一个<code>StatefulWidget</code>，所以可以在<code>initState()</code>方法中进行列表的加载工作。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@override</span><br><span class="line">void initState() &#123;</span><br><span class="line">  super.initState();</span><br><span class="line">  ListModel model = ScopedModel.of&lt;ListModel&gt;(context); // 获取ListModel</span><br><span class="line">  if (!model.isInit) &#123;</span><br><span class="line">    model.loadList(); // 加载列表</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>点击列表中的某一项时，会选中该项，这时调用<code>ListModel</code>中的<code>select(String)</code>方法，并返回上一个界面。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">onTap: () &#123;</span><br><span class="line">  ListModel model = ScopedModel.of&lt;ListModel&gt;(context);</span><br><span class="line">  model.select(list[index]);</span><br><span class="line">  // 返回到上一级页面</span><br><span class="line">  Navigator.pop(context);</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></p>
+<p>完整代码可以参考<a href="https://github.com/windinwork/scoped_model_app" target="_blank" rel="noopener">https://github.com/windinwork/scoped_model_app</a></p>
+<h3 id="四、ScopedModel的注意事项"><a href="#四、ScopedModel的注意事项" class="headerlink" title="四、ScopedModel的注意事项"></a>四、ScopedModel的注意事项</h3><ol>
+<li><code>ScopedModelDescendant</code>的层级需要尽量低，可以避免大范围的UI重建。这里引用官方的例子。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 错误示例</span><br><span class="line">return ScopedModelDescendant&lt;CartModel&gt;(</span><br><span class="line">  builder: (context, child, cart) &#123;</span><br><span class="line">    return HumongousWidget(</span><br><span class="line">      // ...</span><br><span class="line">      child: AnotherMonstrousWidget(</span><br><span class="line">        // ...</span><br><span class="line">        child: Text(&apos;Total price: $&#123;cart.totalPrice&#125;&apos;),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 正确示例</span><br><span class="line">return HumongousWidget(</span><br><span class="line">  // ...</span><br><span class="line">  child: AnotherMonstrousWidget(</span><br><span class="line">    // ...</span><br><span class="line">    child: ScopedModelDescendant&lt;CartModel&gt;(</span><br><span class="line">      builder: (context, child, cart) &#123;</span><br><span class="line">        return Text(&apos;Total price: $&#123;cart.totalPrice&#125;&apos;);</span><br><span class="line">      &#125;,</span><br><span class="line">    ),</span><br><span class="line">  ),</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p><code>ScopedModel</code>功能比较简单，使用<code>Model</code>保存状态和通知状态改变，使用<code>ScopedModel</code>提供<code>Model</code>，使用<code>ScopedModelDescendant</code>布局来响应状态变化，是一个十分适合入门者理解的状态管理模型。</p>
+<h3 id="参考目录"><a href="#参考目录" class="headerlink" title="参考目录"></a>参考目录</h3><p><a href="https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple" target="_blank" rel="noopener">Simple app state management</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" data-id="cjv3mk9c40001a6i7mkno4b59" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-Android应用集成Office文件能力完全攻略" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/01/28/Android应用集成Office文件能力完全攻略/" class="article-date">
+  <time datetime="2019-01-28T09:58:46.000Z" itemprop="datePublished">2019-01-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/28/Android应用集成Office文件能力完全攻略/">Android应用集成Office文件能力完全攻略</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p>不同于iOS，Android的webView不支持打开office和pdf文档，所以当我们遇到在应用内打开office和pdf文档的需求时，往往无法从系统原生功能去支持。这篇文章的写下笔者在Android应用中集成office和pdf文件能力的心得，附上demo地址：<a href="https://github.com/windinwork/OfficeApplication" target="_blank" rel="noopener">https://github.com/windinwork/OfficeApplication</a></p>
+</blockquote>
+<h3 id="一、确定解决方案"><a href="#一、确定解决方案" class="headerlink" title="一、确定解决方案"></a>一、确定解决方案</h3><p>Android应用打开office和pdf文件。常用的有以下四种解决方案：</p>
+<ol>
+<li>在线网页打开文件方案：通过微软或谷歌提供的在线页面打开office和pdf文件</li>
+<li>集成相关文档处理开源库：通过集成开源库类似于AndroidPdfViewer</li>
+<li>通过系统中的第三方应用打开文档</li>
+<li>集成腾讯x5 sdk文件能力</li>
+</ol>
+<p>四种方案各有优劣，这里笔者选择了x5 sdk为主要手段，第三方应用辅助的这样一种解决方案</p>
+<h3 id="二、集成x5内核"><a href="#二、集成x5内核" class="headerlink" title="二、集成x5内核"></a>二、集成x5内核</h3><p>腾讯官方提供的x5内核有两个版本，这里选择具有文件能和的sdk：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/1/19/1686501b9e843889?w=1061&amp;h=498&amp;f=png&amp;s=50584" alt></p>
+<p>接下来的集成可以参考<a href="https://x5.tencent.com/tbs/guide/sdkInit.html" target="_blank" rel="noopener">x5内核接入文档</a>，这里便不详述。集成的主要工作便是集成jar包和so文件，并在Application初始化时调用QbSdk.initX5Environment(context, callback)来完成初始化工作。</p>
+<h3 id="三、集成TbsReader"><a href="#三、集成TbsReader" class="headerlink" title="三、集成TbsReader"></a>三、集成TbsReader</h3><p>x5内核中提供了TbsReaderView，让我们可以通过这个类在App中显示文档。考虑到TbsReaderView这个类具有生命周期的方法，我们把它封装在一个Fragment中，方便我们的调用。TbsReaderView的主要方法有两个，一个是preOpen(String, boolean)，另一个是openFile(Bundle)。preOpen(String, boolean)是用来检测x5文件能力是否成功初始化和是否支持打开文件的格式，当符合打开文件的条件时该方法返回true；openFile(Bundle)则是在preOpen(String, boolean)的返回值为true的情况进行调用，顾名思义这个方法是用来打开文件的，其中bundle用来传入文件路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">String path = file.getPath();</span><br><span class="line">String format = parseFormat(path);</span><br><span class="line">boolean preOpen = mReaderView.preOpen(format, false); // 该状态标志x5文件能力是否成功初始化并支持打开文件的格式</span><br><span class="line">if (preOpen) &#123; // 使用x5内核打开office文件</span><br><span class="line">    Bundle bundle = new Bundle();</span><br><span class="line">    bundle.putString(&quot;filePath&quot;, path);</span><br><span class="line">    bundle.putString(&quot;tempPath&quot;, StorageUtils.getTempDir(context).getPath());</span><br><span class="line">    mReaderView.openFile(bundle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了这部分核心代码，TbsReaderView基本上就能打开Office和PDF文件了。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/1/23/168788349cf04caa?w=1080&amp;h=2280&amp;f=jpeg&amp;s=152346" alt></p>
+<h3 id="四、完善文件能力"><a href="#四、完善文件能力" class="headerlink" title="四、完善文件能力"></a>四、完善文件能力</h3><p>市面上的安卓手机各式各样，虽然集成了TbsReaderView，但是还是会收到用户反馈说无法打开Office文件。这是因为用户手机上的x5文件能力没有初始化成功，至于为什么没有初始化成功，原因还无法确定。针对这部分用户，我们需要在他们无法使用TbsReaderView浏览Office文件的情况下，提供另外的途径去打开Office文件。大致思路是检测到TbsReaderView无法打开Office或PDF时，跳转到第三方应用去打开。这里x5的jar包提供了这样一个api:openFileReader(Context, String, HashMap&lt;String, String&gt;, ValueCallback<string>)用来使用第三方应用打开文件，并且支持前往下载具有Office浏览功能的QQ浏览器，这样的功能对用户比较友好，我们可以直接拿来用。</string></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/1/23/168787ebe9b1ff09?w=380&amp;h=611&amp;f=png&amp;s=19921" alt></p>
+<p>然而，x5的jar包中使用第三方应用打开时调用了Uri.fromFile(file)，这个生成文件Uri的方法在Android7.0以下有效，但在Android7.0及以上会造成崩溃，这是Android7.0的文件权限管理导致。为了使Android7.0及以上的用户可以正常跳转到第三方应用打开，我们需要使用FileProvider去获取Uri，但代码在Jar包中写死了。幸运的是，经过多次尝试，发现可以将跳转到第三方应用打开的这部分代码复制出来，修正Uri.fromFile(file)的代码以正常调用，免去了要修改jar的麻烦。这里笔者把这部分代码封装在一个叫TbsReaderAssist的类中，辅助调用。</p>
+<p>这样一来，一个比较完善的打开Office和PDF的功能就算做完成。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">String path = file.getPath();</span><br><span class="line">String format = parseFormat(path);</span><br><span class="line">boolean preOpen = mReaderView.preOpen(format, false); // 该状态标志x5文件能力是否成功初始化并支持打开文件的格式</span><br><span class="line">if (preOpen) &#123; // 使用x5内核打开office文件</span><br><span class="line">    Bundle bundle = new Bundle();</span><br><span class="line">    bundle.putString(&quot;filePath&quot;, path);</span><br><span class="line">    bundle.putString(&quot;tempPath&quot;, StorageUtils.getTempDir(context).getPath());</span><br><span class="line">    mReaderView.openFile(bundle);</span><br><span class="line">&#125; else &#123; // 打开文件失败，可能是由于x5内核未成功初始化引起</span><br><span class="line">    if (QbSdk.isSuportOpenFile(format, 1)) &#123; // 再次检查文件是否支持</span><br><span class="line">        HashMap&lt;String, String&gt; params = new HashMap&lt;&gt;();</span><br><span class="line">        params.put(&quot;style&quot;, &quot;1&quot;);</span><br><span class="line">        params.put(&quot;local&quot;, &quot;false&quot;);</span><br><span class="line">        TbsReaderAssist.openFileReader(context, path, params, null);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>这里笔者写了一个App打开Office或PDF文件的解决方案，个人认为对于一个App来说是相对完善的处理。这里是demo的地址：<a href="https://github.com/windinwork/OfficeApplication" target="_blank" rel="noopener">https://github.com/windinwork/OfficeApplication</a>，共享出来，可以让有需要做类似功能的小伙伴少走些弯路。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2019/01/28/Android应用集成Office文件能力完全攻略/" data-id="cjv3mk9cx0009a6i7ji6wnvr4" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-使用Gradle编写蒲公英自动上传安装包和更新说明脚本" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" class="article-date">
+  <time datetime="2018-12-02T09:58:40.000Z" itemprop="datePublished">2018-12-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/">使用Gradle编写蒲公英自动上传安装包和更新说明脚本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p>Github: <a href="https://github.com/windinwork/PgyerGradleApplication" target="_blank" rel="noopener">https://github.com/windinwork/PgyerGradleApplication</a></p>
+</blockquote>
+<p>平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。</p>
+<p>笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐着的老大，只好勉为其难地答应发包时写上改动内容T_T。但是懒惰如笔者，当然不会每次发包都手动打字啦，最好能打完包后自动把包和修改信息上传到蒲公英。</p>
+<p>虽然嘴上说着不要不要，但笔者想到写个自动化脚本还是很兴奋的。本来想看看有没有现成的蒲公英自动上传脚本，在网上搜索了一下发现都不是很对胃口，想想还是自己写算了。所以今天花了半天写了这个脚本，在这里也分享一下相关的gradle配置，以供参考。</p>
+<h3 id="一、-自动上传蒲公英"><a href="#一、-自动上传蒲公英" class="headerlink" title="一、 自动上传蒲公英"></a>一、 自动上传蒲公英</h3><p>向蒲公英这样的平台一般提供API用来做一些便利的操作，我们直接打开<a href="https://www.pgyer.com/doc/api#uploadApp" target="_blank" rel="noopener">蒲公英文档</a>，可以看到用于上传安装包的API和示例的上传方法，我们便采用其中的<code>curl</code>的方法上传安装包。</p>
+<p>上传接口的参数中，有三个是必填的，分别的<code>uKey</code>、<code>_api_key</code>和<code>file</code>。<code>uKey</code>和<code>_api_key</code>我们在自己的蒲公英帐号上可以查看到，而<code>file</code>参数需要我们提供<code>apk</code>文件的路径，所以我们先想办法拿到路径。</p>
+<p>这里我们定义一个方法：<code>getApkPath()</code>，通过<code>buildDir</code> + 固定的<code>outputs/apk/${buildType}/app-${buildType}.apk</code>地址来获取<code>apk</code>路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def getApkPath() &#123;</span><br><span class="line">    String buildType = getBuildType().toLowerCase()</span><br><span class="line">    return new File(buildDir, &quot;outputs/apk/$&#123;buildType&#125;/app-$&#123;buildType&#125;.apk&quot;).absolutePath</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>getApkPath()</code>中我们需要知道编译打包和用的<code>buildType</code>，这里定义一个方法<code>getBuildType()</code>进行获取。本人对<code>gradle</code>脚本不太熟悉，暂时通过打包参数来获取相应的<code>buildType</code>，足以应付一般场景。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">def getBuildType() &#123;</span><br><span class="line">    Gradle gradle = getGradle()</span><br><span class="line">    String args = gradle.getStartParameter().getTaskRequests().toString()</span><br><span class="line">    if (args.contains(&quot;assembleRelease&quot;)) &#123;</span><br><span class="line">        return &quot;Release&quot;</span><br><span class="line">    &#125; else if (args.contains(&quot;assembleDebug&quot;)) &#123;</span><br><span class="line">        return &quot;Debug&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    return &quot;Debug&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们把上传命令封装在一个<code>task</code>里：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">task pgyer(type: Exec) &#123;</span><br><span class="line"></span><br><span class="line">    String apiKey = &quot;6767f341ee7ed1f9fd4699e6ed71e773&quot; // todo 这里替换为自己的蒲公英的apiKey</span><br><span class="line">    String userKey = &quot;0cf7164e5158effc01cc24c0667266c4&quot; // todo 这里替换为自己的蒲公英的userKey</span><br><span class="line"></span><br><span class="line">    commandLine &apos;curl&apos;</span><br><span class="line">    args &apos;-k&apos;, &apos;http://www.pgyer.com/apiv1/app/upload&apos;,</span><br><span class="line">            &apos;-F&apos;, &quot;uKey=$&#123;userKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;_api_key=$&#123;apiKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;file=@$&#123;getApkPath()&#125;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样我们就在一个<code>task</code>可以调用啦。进入<code>Terminal</code>，<code>gradlew clean assembleDebug pgyer</code>，<code>gradle</code>脚本便会执行清理、编译打包、上传的工作。等命令执行完，我们便能在蒲公英上看到新鲜出炉的安装包了。</p>
+<h3 id="二、自动添加日志"><a href="#二、自动添加日志" class="headerlink" title="二、自动添加日志"></a>二、自动添加日志</h3><p>笔者目前想到自动从<code>git</code>记录中读取近期的log，进行一定格式化后上传到蒲公英。</p>
+<p>首先我们来读取git的记录：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">def getGitLog() &#123;</span><br><span class="line">    return &apos;git log --pretty=format:&quot;%s___in___%ad___by___%an&quot; -10 --date=format:%c&apos;.execute().text</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>%s__in__%ad__by__%an</code>表示内容+日期+作者，<code>-10</code>表示显示最近10条log，<code>--date=format:%c</code>表示输出本地的日期时间。这里发现执行命令时如有空格不能输出<code>git log</code>，所以使用<code>___</code>来代替空格。</p>
+<p>有时我们会想添加自定义的信息进去，所以需要一个参数用于传递自定义的信息，这里将参数定义为<code>pgyerDesc</code>，然后在<code>gradle</code>中获取<code>pgyerDesc</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (project.hasProperty(&quot;pgyerDesc&quot;)) &#123;</span><br><span class="line">    desc = pgyerDesc + &quot;\n&quot; + desc</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于传入的参数<code>pgyerDesc</code>，在<code>Windows</code>中，输入中文会出现乱码，应该是编码格式的问题。笔者用的是<code>Ubuntu</code>系统，所以不会有这个问题的出现。所以这个乱码的情况就交给<code>Windows</code>的同学自己去解决啦。</p>
+<p>好了，整合起来，蒲公英自动上传安装包和日志的<code>gradle</code>脚本就实现了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">task pgyer(type: Exec) &#123;</span><br><span class="line"></span><br><span class="line">    String apiKey = &quot;6767f341ee7ed1f9fd4699e6ed71e773&quot; // todo 这里替换为自己的蒲公英的apiKey</span><br><span class="line">    String userKey = &quot;0cf7164e5158effc01cc24c0667266c4&quot; // todo 这里替换为自己的蒲公英的userKey</span><br><span class="line">    String desc = getGitLog()</span><br><span class="line"></span><br><span class="line">    if (project.hasProperty(&quot;pgyerDesc&quot;)) &#123;</span><br><span class="line">        desc = pgyerDesc + &quot;\n&quot; + desc</span><br><span class="line">    &#125;</span><br><span class="line">    if (desc == null || desc.isEmpty()) &#123;</span><br><span class="line">        desc = &quot;保持沉默&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    commandLine &apos;curl&apos;</span><br><span class="line">    args &apos;-k&apos;, &apos;http://www.pgyer.com/apiv1/app/upload&apos;,</span><br><span class="line">            &apos;-F&apos;, &quot;uKey=$&#123;userKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;_api_key=$&#123;apiKey&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;file=@$&#123;getApkPath()&#125;&quot;,</span><br><span class="line">            &apos;-F&apos;, &quot;updateDescription=$&#123;desc&#125;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><p>最后，为了保持功能模块分工清晰和代码复用，我们把新建一个<code>pgyer.gradle</code>的文件，将这个<code>task</code>单独存放起来。再在<code>app</code>的<code>build.gradle</code>中通过<code>apply from</code>的方式引入<code>pgyer.gradle</code>。我们运行<code>gradlew assembleDebug pgyer -P pgyerDesc=&quot;请多多关注&quot;</code>，就可以看到想要的效果了。</p>
+<p>该脚本是在<code>gradle4.4</code>的环境下进行，这里也做了一个<code>Demo</code>放在<a href="https://github.com/windinwork/PgyerGradleApplication" target="_blank" rel="noopener">Github</a>上了，里面的一些参数设置可能根据小伙伴自己的需求再做调整。希望各位能够喜欢这篇蒲公英自动上传脚本的文章。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" data-id="cjv3mk9cb0002a6i76t3ldhcm" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-美团多渠道打包工具Walle源码解析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/11/12/美团多渠道打包工具Walle源码解析/" class="article-date">
+  <time datetime="2018-11-12T09:58:19.000Z" itemprop="datePublished">2018-11-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/12/美团多渠道打包工具Walle源码解析/">美团多渠道打包工具Walle源码解析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p>笔者现在在负责一个新的<code>Android</code>项目，前期功能不太复杂，安装包的体积小，渠道要求也较少，所以打渠道包使用<code>Android Studio</code>自带的打包方法。原生方法打渠道包大约八分钟左右就搞定了，顺便可以悠闲地享受一下这种打包方式的乐趣。但是，随着重的功能的加入和渠道的增加，原生方法打渠道包就显得有点慢了，所以集成了美团的多渠道打包工具<code>Walle</code>，顺便看了一下里面的实现原理。</p>
+</blockquote>
+<h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><p>这一次的原理分析仅仅针对<code>Android Signature V2 Scheme</code>。</p>
+<p>在上一家公司的时候，笔者所在的<code>Android</code>团队经历了<code>Android Signature V1</code>到<code>Android Signature V2</code>的变更，其中因为未及时从<code>V1</code>升级到<code>V2</code>而导致上线受阻，当时也紧急更换了新的多渠道打包工具来解决问题。在我自己使用多渠道打包工具时，不免对<code>V2</code>签名验证的方式有了一丝好奇，想去看看<code>V2</code>签名验证和多渠道打包的实现原理。</p>
+<p>该文章先从安装包<code>V2</code>签名验证入手，再从打包过程中分析<code>Walle</code>是怎么绕过签名验证在安装包上加入渠道信息，最后看<code>Walle</code>怎么从应用中读取渠道信息。在这里我就不讲<code>Walle</code>的使用了，建议读者在看原理前先了解一下使用方式。</p>
+<h3 id="二、APK-Signature-Scheme-v2"><a href="#二、APK-Signature-Scheme-v2" class="headerlink" title="二、APK Signature Scheme v2"></a>二、APK Signature Scheme v2</h3><p><code>APK Signature Scheme v2</code>的签名验证，我们先从官方一张图入手</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/5/166e42d7cf64d61b?w=779&amp;h=152&amp;f=png&amp;s=13494" alt></p>
+<p>一般情况下，我们用到的<code>zip</code>格式由三个部分组成：文件数据区+中央目录结构+中央目录结束标志，分别对应上图的<code>Contents Of ZIP entries</code>、<code>Central Directory`</code>、End of Central Directory<code>（下文简称为</code>EOCD<code>）。正如图中</code>After signing<code>所示，</code>APK Signature Scheme v2<code>是在ZIP文件格式的</code>Central Directory<code>区块所在文件位置的前面添加一个</code>APK Signing Block`区块，用于检验以上三个区块的完整性。</p>
+<p><code>APK Signing Block</code>区块的构成是这样的</p>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>字节数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@+0</td>
+<td>8</td>
+<td>这个Block的长度（本字段的长度不计算在内）</td>
+</tr>
+<tr>
+<td>@+8</td>
+<td>n</td>
+<td>一组ID-value</td>
+</tr>
+<tr>
+<td>@-24</td>
+<td>8</td>
+<td>这个Block的长度（和第一个字段一样值）</td>
+</tr>
+<tr>
+<td>@-16</td>
+<td>16</td>
+<td>魔数 “APK Sig Block 42”</td>
+</tr>
+</tbody>
+</table>
+<p>区块2中<code>APK Signing Block</code>是由这几部分组成：2个用来标示这个区块长度的8字节 ＋ 这个区块的魔数 + 这个区块所承载的数据（ID-value）。</p>
+<p>其中<code>Android</code>是通过<code>ID-value</code>对中的<code>ID</code>为<code>0x7109871a</code>的<code>ID-value</code>进行校验，对对中的其它<code>ID-value</code>是不做检验处理的，那么我们可以向<code>ID-value</code>对中添加我们自己的<code>ID-value</code>，即渠道信息，这样使安装包可以在增加了渠道信息的情况下通过<code>Android</code>的安装包检验。</p>
+<h3 id="三、写入渠道信息"><a href="#三、写入渠道信息" class="headerlink" title="三、写入渠道信息"></a>三、写入渠道信息</h3><p>通过上面的分析我们得知，写入渠道信息需要修改安装包，这时候肯定会想到使用<code>gradle</code>插件对编译后的安装包文件进行修改。如下图所示，我们也可以看到，<code>Walle</code>的源码目录中的plugin插件。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/8/166f3e381ff11f3e?w=690&amp;h=156&amp;f=png&amp;s=17893" alt></p>
+<p>通过分析<code>plugin</code>的<code>gradle</code>依赖，我们知道这个插件的功能实现由<code>plugin</code>、<code>payload_writer</code>、<code>payload_reader</code>三个模块构成。我们先看实现了<code>org.gradle.api.Plugin&lt;Project&gt;</code>的<code>GradlePlugin</code>类。抛开异常检查和配置相关的代码，我们从主功能代码开始看。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">void apply(Project project) &#123;</span><br><span class="line">...</span><br><span class="line">    applyExtension(project);</span><br><span class="line">    applyTask(project);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void applyTask(Project project) &#123;</span><br><span class="line">    project.afterEvaluate &#123;</span><br><span class="line">        project.android.applicationVariants.all &#123; BaseVariant variant -&gt;</span><br><span class="line">            ...</span><br><span class="line">            ChannelMaker channelMaker = project.tasks.create(&quot;assemble$&#123;variantName&#125;Channels&quot;, ChannelMaker);</span><br><span class="line">            channelMaker.targetProject = project;</span><br><span class="line">            channelMaker.variant = variant;</span><br><span class="line">            channelMaker.setup();</span><br><span class="line"></span><br><span class="line">            channelMaker.dependsOn variant.assemble;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在gradle脚本运行时会调用实现了<code>org.gradle.api.Plugin&lt;Project&gt;</code>接口的类的<code>void apply(Project project)</code>方法，我们从该方法开始跟踪。这里主要调用了<code>applyTask(project)</code>。而<code>applyTask(project)</code>中创建了一个<code>ChannelMaker</code>的<code>gradle</code>任务对象，并把这个任务对象放在<code>assemble</code>任务(即完成了打包任务)后，可见<code>Walle</code>是通过<code>ChannelMaker</code>保存渠道信息的。接下来，我们便看<code>ChannelMaker</code>这个<code>groovy</code>文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">@TaskAction</span><br><span class="line">public void packaging() &#123;</span><br><span class="line">    ...</span><br><span class="line">        checkV2Signature(apkFile)</span><br><span class="line">    ...</span><br><span class="line">        if (targetProject.hasProperty(PROPERTY_CHANNEL_LIST)) &#123;</span><br><span class="line">    ...</span><br><span class="line">            channelList.each &#123; channel -&gt;</span><br><span class="line">                generateChannelApk(apkFile, channelOutputFolder, nameVariantMap, channel, extraInfo, null)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else if (targetProject.hasProperty(PROPERTY_CONFIG_FILE)) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByConfigFile(configFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125; else if (targetProject.hasProperty(PROPERTY_CHANNEL_FILE)) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByChannelFile(channelFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125; else if (extension.configFile instanceof File) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByConfigFile(extension.configFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125; else if (extension.channelFile instanceof File) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByChannelFile(extension.channelFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>ChannelMaker.groovy</code>的<code>packaging()</code>方法中，做了检验操作和一堆条件判断，最后都会调用以<code>generateChannel</code>为开头命名的方法。至于判断了什么，我们不要在意这些细节。这些名字以<code>generateChannel</code>开头的方法最后都会调用到<code>generateChannelApk()</code>，看代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def generateChannelApk(File apkFile, File channelOutputFolder, Map nameVariantMap, channel, extraInfo, alias) &#123;</span><br><span class="line">    ...</span><br><span class="line">    ChannelWriter.put(channelApkFile, channel, extraInfo)</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法中比较关键的一段代码是<code>ChannelWriter.put(channelApkFile, channel, extraInfo)</code>即传入文件地址、渠道信息、<code>extra</code>信息后交由<code>ChannelWriter</code>完成写入工作。</p>
+<p><code>ChannelWriter</code>封装在由<code>payload_writer</code>模块中，里面封装了方法调用。其中<code>void put(final File apkFile, final String channel, final Map&lt;String, String&gt; extraInfo)</code>间接调用了<code>void putRaw(final File apkFile, final String string, final boolean lowMemory)</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static void putRaw(final File apkFile, final String string, final boolean lowMemory) throws IOException, SignatureNotFoundException &#123;</span><br><span class="line">    PayloadWriter.put(apkFile, ApkUtil.APK_CHANNEL_BLOCK_ID, string, lowMemory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时调用进入了<code>PayloadWriter</code>类，渠道信息写入的关键代码便在这里面。这里从<code>void put(final File apkFile, final int id, final ByteBuffer buffer, final boolean lowMemory)</code>调用到<code>void putAll(final File apkFile, final Map&lt;Integer, ByteBuffer&gt; idValues, final boolean lowMemory)</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public static void putAll(final File apkFile, final Map&lt;Integer, ByteBuffer&gt; idValues, final boolean lowMemory) throws IOException, SignatureNotFoundException &#123;</span><br><span class="line">    handleApkSigningBlock(apkFile, new ApkSigningBlockHandler() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public ApkSigningBlock handle(final Map&lt;Integer, ByteBuffer&gt; originIdValues) &#123;</span><br><span class="line">            if (idValues != null &amp;&amp; !idValues.isEmpty()) &#123;</span><br><span class="line">                originIdValues.putAll(idValues);</span><br><span class="line">            &#125;</span><br><span class="line">            final ApkSigningBlock apkSigningBlock = new ApkSigningBlock();</span><br><span class="line">            final Set&lt;Map.Entry&lt;Integer, ByteBuffer&gt;&gt; entrySet = originIdValues.entrySet();</span><br><span class="line">            for (Map.Entry&lt;Integer, ByteBuffer&gt; entry : entrySet) &#123;</span><br><span class="line">                final ApkSigningPayload payload = new ApkSigningPayload(entry.getKey(), entry.getValue());</span><br><span class="line">                apkSigningBlock.addPayload(payload);</span><br><span class="line">            &#125;</span><br><span class="line">            return apkSigningBlock;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, lowMemory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>void putAll()</code>中调用了<code>handleApkSigningBlock()</code>，顾名思义，这个方法是处理<code>APK Signing Block</code>的，将渠道信息写入<code>Block</code>中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">static void handleApkSigningBlock(final File apkFile, final ApkSigningBlockHandler handler, final boolean lowMemory) throws IOException, SignatureNotFoundException &#123;</span><br><span class="line">    RandomAccessFile fIn = null;</span><br><span class="line">    FileChannel fileChannel = null;</span><br><span class="line">    try &#123;</span><br><span class="line">        // 由安装包路径构建一个RandomAccessFile对象，用于自由访问文件位置</span><br><span class="line">        fIn = new RandomAccessFile(apkFile, &quot;rw&quot;);</span><br><span class="line">        // 获取fileChannel，通过fileChannel写文件</span><br><span class="line">        fileChannel = fIn.getChannel();</span><br><span class="line">        // 获取zip文件的comment长度</span><br><span class="line">        final long commentLength = ApkUtil.getCommentLength(fileChannel);</span><br><span class="line">        // 找到Central Directory的初始偏移量</span><br><span class="line">        final long centralDirStartOffset = ApkUtil.findCentralDirStartOffset(fileChannel, commentLength);</span><br><span class="line">        // 找到APK Signing Block</span><br><span class="line">        final Pair&lt;ByteBuffer, Long&gt; apkSigningBlockAndOffset = ApkUtil.findApkSigningBlock(fileChannel, centralDirStartOffset);</span><br><span class="line">        final ByteBuffer apkSigningBlock2 = apkSigningBlockAndOffset.getFirst();</span><br><span class="line">        final long apkSigningBlockOffset = apkSigningBlockAndOffset.getSecond();</span><br><span class="line">        // 找到APK Signature Scheme v2的ID-value</span><br><span class="line">        final Map&lt;Integer, ByteBuffer&gt; originIdValues = ApkUtil.findIdValues(apkSigningBlock2);</span><br><span class="line">        // 找到V2签名信息</span><br><span class="line">        final ByteBuffer apkSignatureSchemeV2Block = originIdValues.get(ApkUtil.APK_SIGNATURE_SCHEME_V2_BLOCK_ID);</span><br><span class="line">        // 校验签名信息是否存在</span><br><span class="line">        if (apkSignatureSchemeV2Block == null) &#123;</span><br><span class="line">            throw new IOException(</span><br><span class="line">                    &quot;No APK Signature Scheme v2 block in APK Signing Block&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        final ApkSigningBlock apkSigningBlock = handler.handle(originIdValues);</span><br><span class="line"></span><br><span class="line">        if (apkSigningBlockOffset != 0 &amp;&amp; centralDirStartOffset != 0) &#123;</span><br><span class="line"></span><br><span class="line">            // read CentralDir</span><br><span class="line">            fIn.seek(centralDirStartOffset);</span><br><span class="line"></span><br><span class="line">            byte[] centralDirBytes = null;</span><br><span class="line">            File tempCentralBytesFile = null;</span><br><span class="line">            // read CentralDir</span><br><span class="line">            ...</span><br><span class="line">                centralDirBytes = new byte[(int) (fileChannel.size() - centralDirStartOffset)];</span><br><span class="line">                fIn.read(centralDirBytes);</span><br><span class="line">            ...</span><br><span class="line"></span><br><span class="line">            //update apk sign</span><br><span class="line">            fileChannel.position(apkSigningBlockOffset);</span><br><span class="line">            final long length = apkSigningBlock.writeApkSigningBlock(fIn);</span><br><span class="line"></span><br><span class="line">            // update CentralDir</span><br><span class="line">            ...</span><br><span class="line">                // store CentralDir</span><br><span class="line">                fIn.write(centralDirBytes);</span><br><span class="line">            ...</span><br><span class="line">            // update length</span><br><span class="line">            fIn.setLength(fIn.getFilePointer());</span><br><span class="line"></span><br><span class="line">            // update CentralDir Offset</span><br><span class="line"></span><br><span class="line">            // End of central directory record (EOCD)</span><br><span class="line">            // Offset     Bytes     Description[23]</span><br><span class="line">            // 0            4       End of central directory signature = 0x06054b50</span><br><span class="line">            // 4            2       Number of this disk</span><br><span class="line">            // 6            2       Disk where central directory starts</span><br><span class="line">            // 8            2       Number of central directory records on this disk</span><br><span class="line">            // 10           2       Total number of central directory records</span><br><span class="line">            // 12           4       Size of central directory (bytes)</span><br><span class="line">            // 16           4       Offset of start of central directory, relative to start of archive</span><br><span class="line">            // 20           2       Comment length (n)</span><br><span class="line">            // 22           n       Comment</span><br><span class="line">            </span><br><span class="line">            // 定位到EOCD中Offset of start of central directory，即central directory中央目录的超始位置</span><br><span class="line">            fIn.seek(fileChannel.size() - commentLength - 6);</span><br><span class="line">            // 6 = 2(Comment length) + 4 (Offset of start of central directory, relative to start of archive)</span><br><span class="line">            final ByteBuffer temp = ByteBuffer.allocate(4);</span><br><span class="line">            temp.order(ByteOrder.LITTLE_ENDIAN);</span><br><span class="line">            // 写入修改APK Signing Block之后的central directory中央目录的超始位置</span><br><span class="line">            temp.putInt((int) (centralDirStartOffset + length + 8 - (centralDirStartOffset - apkSigningBlockOffset)));</span><br><span class="line">            // 8 = size of block in bytes (excluding this field) (uint64)</span><br><span class="line">            temp.flip();</span><br><span class="line">            fIn.write(temp.array());</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>好了，写入渠道信息的代码大致上都在这里了，结合上面的代码和注释我们来做一下分析。上文我们提到，通过往<code>APK Signing Block</code>写入渠道信息完成多渠道打包，这里简要地说明一下流程。我们是这样从安装包中找到<code>APK Signing Block</code>的：</p>
+<p>从<code>zip</code>结构中的<code>EOCD</code>出发，根据<code>EOCD</code>结构定位到<code>Offset of start of central directory（中央目录偏移量）</code>，通过中央目录偏移量找到中央目录的位置。因为<code>APK Signing Block</code>是在中央目录之前，所以我们可以从中央目录偏移量往前找到<code>APK Signing Block</code>的<code>size</code>，再通过<code>Offset of start of central directory（中央目录偏移量）</code> - <code>size</code>来确定<code>APK Signing Block</code>的起始偏移量。这时候我们知道了<code>APK Signing Block</code>的位置，就可以拿到<code>ID-value</code>对去加入渠道信息，再将修改后的<code>APK Signing Block</code>和<code>Central Directory</code>同<code>EOCD</code>一起写入文件中。</p>
+<p>这时候修改工作还没有完成，这里因为改动了<code>APK Signing Block</code>，所以在<code>APK Signing Block</code>后面的<code>Central Directory</code>起始偏移量也跟着改变了。这个起始偏移量是记录在<code>EOCD</code>中的，根据EOCD结构修改<code>Central Directory</code>的起始偏移量后写入工作就算完成了。</p>
+<p>细心的朋友会发现，不是说<code>V2</code>签名会保护<code>EOCD</code>这一区块吗，修改了里面的超始偏移量还能通过校验吗？其实<code>Android</code>系统在使用<code>V2</code>校验安装包时，会把<code>EOCD</code>的<code>Central Directory</code>的起始偏移量换成<code>APK Signing Block</code>的偏移量再进行校验，所以修改<code>EOCD</code>中<code>Central  Directory</code>的起始偏移量不会影响到校验。</p>
+<h3 id="四、读取渠道信息"><a href="#四、读取渠道信息" class="headerlink" title="四、读取渠道信息"></a>四、读取渠道信息</h3><p>在了解了<code>Walle</code>是如何写入渠道信息之后，去理解读取渠道信息就很简单了。<code>Walle</code>先拿到安装包文件，再根据<code>zip</code>文件结构找到<code>APK Signing Block</code>，从中读取出之前写入的渠道信息。具体的代码懒懒的笔者就不帖了。</p>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>有一部分的<code>Coder</code>总是能做出创新性的东西，基于他们对于技术的理解做出更加方便、灵活的工具。在通过对<code>Walle</code>的分析中，我们可以学到，在清楚理解了<code>zip</code>结构、<code>Android</code>安装包检验原理，运行<code>gradle plugin</code>，就可以做出一款便于打包的工具。在这里分享美团多渠道打包工具<code>Walle</code>的原理实现，希望各位看了有所收获。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/11/12/美团多渠道打包工具Walle源码解析/" data-id="cjv3mk9ce0003a6i7edgjzakn" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-通过字节码看原理，带你去找kotlin中的static方法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" class="article-date">
+  <time datetime="2018-11-04T09:58:07.000Z" itemprop="datePublished">2018-11-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/">通过字节码看原理，带你去找kotlin中的static方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p><code>kotlin</code>在被钦定为<code>Android</code>的官方开发语言后，越来越多的<code>Android</code>开发者投向<code>kotlin</code>的怀抱。尽管<code>kotlin</code>兼容<code>Java</code>，但在使用上还是有很大不同的，就像<code>static</code>关键字，我们可以用<code>companion object</code>来替代<code>static</code>，当我们用反射去调用时，会发现调用时并不像<code>static</code>那样直接，笔者在日常使用中就遇到这样的问题，想拿反射去调用静态方法时无法调用，所以便通过字节码的实现来一窥究竟，顺便水一篇文章（●&gt;∀&lt;●）。</p>
+</blockquote>
+<h3 id="一、如何查看kotlin字节码"><a href="#一、如何查看kotlin字节码" class="headerlink" title="一、如何查看kotlin字节码"></a>一、如何查看kotlin字节码</h3><p>我们通过<code>Tools-&gt;Kotlin-&gt;Show Kotlin bytecode</code>打开<code>Kotlin</code>字节码界面，查看<code>Kotlin</code>文件的字节码形式。界面如下：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dd8283c09e742?w=644&amp;h=437&amp;f=png&amp;s=45209" alt></p>
+<h3 id="二、Object单例看static"><a href="#二、Object单例看static" class="headerlink" title="二、Object单例看static"></a>二、Object单例看static</h3><p>在<code>Kotlin</code>中，我们可以通过<code>Object</code>来直接实现一个单例，通过对<code>Object</code>单例中方法的调用来实现类似于<code>Java</code>中<code>static</code>方法的调用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">object MyObject &#123;</span><br><span class="line">    val x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">    public fun foo(): String &#123;</span><br><span class="line">        return x</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于这个简单的<code>Object</code>单例，我们看到的字节码是这样的（省略部分字节码）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private final static Ljava/lang/String; x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">public final getX()Ljava/lang/String;</span><br><span class="line">...</span><br><span class="line">public final setX(Ljava/lang/String;)V</span><br><span class="line">..</span><br><span class="line">public final foo()Ljava/lang/String;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">public final static Lcom/tanzhouedu/testapplication/MyObject; INSTANCE</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，<code>Kotlin</code>在该类中声明了一个<code>INSTANCE</code>的<code>static</code>变量来实现单例效果。</p>
+<p>所以我们在<code>Java</code>语言中调用<code>foo()</code>方法是这样的，即拿<code>到INSTANCE</code>静态变量再继续调用。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166de6e580910641?w=296&amp;h=113&amp;f=png&amp;s=4881" alt></p>
+<h3 id="三、Companion-Object单例看static"><a href="#三、Companion-Object单例看static" class="headerlink" title="三、Companion Object单例看static"></a>三、Companion Object单例看static</h3><p>这一次，我们通过<code>Companion Object</code>伴生对象来实现静态的变量和方法调用，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class MyClass &#123;</span><br><span class="line"></span><br><span class="line">    companion object &#123;</span><br><span class="line">        val x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">        fun foo(): String &#123;</span><br><span class="line">            return x</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看到的字节码是这样的（省略部分字节码）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">// access flags 0x1A</span><br><span class="line">private final static Ljava/lang/String; x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">// access flags 0x19</span><br><span class="line">public final static Lcom/windinwork/myapplication/bytecode/MyClass$Companion; Companion</span><br><span class="line">  </span><br><span class="line">// access flags 0x31</span><br><span class="line">public final class com/windinwork/myapplication/bytecode/MyClass$Companion &#123;</span><br><span class="line">  // access flags 0x11</span><br><span class="line">  public final getX()Ljava/lang/String;</span><br><span class="line">  @Lorg/jetbrains/annotations/NotNull;() // invisible</span><br><span class="line">   L0</span><br><span class="line">    LINENUMBER 6 L0</span><br><span class="line">    INVOKESTATIC com/windinwork/myapplication/bytecode/MyClass.access$getX$cp ()Ljava/lang/String;</span><br><span class="line">    ARETURN</span><br><span class="line">   ...</span><br><span class="line"></span><br><span class="line">  // access flags 0x11</span><br><span class="line">  public final foo()Ljava/lang/String;</span><br><span class="line">   ...</span><br></pre></td></tr></table></figure>
+<p>我们来分析一下这段字节码，可以看到，我们在<code>Companion Object</code>中声明的变量<code>x</code>，编译之后是作为<code>MyClass</code>的静态变量存在，而方法getX()和foo()是作为<code>MyClass$Companion</code>的成员方法存在。我们可以看到，<code>MyClass</code>通过一个静态变量<code>Companion</code>持有<code>MyClass$Companion</code>的引用，所以我们在访问x变量和调用<code>foo()</code>方法时，实质上是通过对<code>Companion</code>这一静态变量进行方法调用，于是我们在Java中对<code>Companion Object</code>单例的调用是这样的</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dda8ff48082ee?w=298&amp;h=101&amp;f=png&amp;s=4619" alt></p>
+<h3 id="四、通过＠JvmStatic实现Java中的静态方法"><a href="#四、通过＠JvmStatic实现Java中的静态方法" class="headerlink" title="四、通过＠JvmStatic实现Java中的静态方法"></a>四、通过＠JvmStatic实现Java中的静态方法</h3><p>通过以上两个例子，我们发现，在我们声明的单例中，变量是采用了<code>static</code>修饰的，我们通过反射可以直接拿到变量。而方法都没有使用<code>static</code>修饰。如果不加处理，在我们用<code>Java</code>进行反射调用时，我们无法对foo()方法像<code>Java</code>的<code>static</code>方法进行直接的反射调用，而要通过<code>Object</code>单例中的<code>INSTANCE</code>或者使用<code>Companion Object</code>单例时的<code>Companion</code>静态变量，间接地进行反射调用。</p>
+<p>那么，我们可不可以像对这些单例的方法，进行<code>Java</code>的<code>static</code>方法的反射调用呢？这时候我们就要使用<code>＠JvmStatic</code>注解。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166ddb691cc56c74?w=396&amp;h=245&amp;f=png&amp;s=8292" alt></p>
+<p>这时候我们就可以看到<code>foo()</code>方法也被<code>static</code>修饰了，这样我们在调用<code>foo()</code>方法的方式和在<code>Java</code>调用时的是一致的了。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dddb1451b6fd6?w=779&amp;h=277&amp;f=png&amp;s=22093" alt></p>
+<h3 id="五、结论"><a href="#五、结论" class="headerlink" title="五、结论"></a>五、结论</h3><p>从上面我们可以看到，如果不通过<code>＠JvmStatic</code>注解，kotlin在字节码中是不产生<code>static</code>方法的，当然我们在<code>kotlin</code>使用中是可以直接调用，如<code>MyClass.foo()</code>的，而放到<code>Java</code>上表现就明显不同了。这篇文章主要是写给<code>Java</code>转向<code>kotlin</code>时对<code>kotlin</code>中<code>static</code>变量和方法实现有疑问的同学，希望能有所帮助。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" data-id="cjv3mk9cn0005a6i751kp2zgu" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-子弹短信没有附近的人？教你子弹短信开启附近锤友" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/08/30/子弹短信没有附近的人？教你子弹短信开启附近锤友/" class="article-date">
+  <time datetime="2018-08-30T09:58:02.000Z" itemprop="datePublished">2018-08-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/08/30/子弹短信没有附近的人？教你子弹短信开启附近锤友/">子弹短信没有附近的人？教你子弹短信开启附近锤友</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <p>转载请标明出处<a href="https://juejin.im/post/5b8724ade51d4538a108c49f" target="_blank" rel="noopener">https://juejin.im/post/5b8724ade51d4538a108c49f</a></p>
+<blockquote>
+<p>子弹短信这款软件现在十分流行，新颖的界面友好的交互吸引了大量的新用户。但是，听说子弹短信还有“发现锤友”这一好玩的功能，但是很多小伙伴们没发现有这个功能，今天小编带你用另类的方法让附近锤友这个功能显示出来。</p>
+</blockquote>
+<h3 id="一、为什么没有发现锤友功能"><a href="#一、为什么没有发现锤友功能" class="headerlink" title="一、为什么没有发现锤友功能"></a>一、为什么没有发现锤友功能</h3><p> 目前发现锤友的功能只在锤子手机上才会显示，所以如果你是其它安卓手机或者苹果手机用户，那么你的子弹短信将不会显示出发现锤友的选项。没有发现锤友的功能似乎少了些许乐趣，接下来让我们来开户它。</p>
+<h3 id="二、开启发现锤友功能"><a href="#二、开启发现锤友功能" class="headerlink" title="二、开启发现锤友功能"></a>二、开启发现锤友功能</h3><p> 首先，我们先下载一个电脑模拟器，如夜神模拟器。打开设置，在属性设置(Property settings)这里的manufactur、brand、model全部写上smartisan，如图</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/8/30/16587fd70ff46a00?w=700&amp;h=668&amp;f=png&amp;s=8914" alt></p>
+<p>接下来，我们还要在模拟器里修改下虚拟定位</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/8/30/1658802abf57d1c2?w=700&amp;h=640&amp;f=png&amp;s=361429" alt></p>
+<p>然后，我们安装子弹短信，打开子弹短信，就会发现，右上角的菜单多了一个发现锤友的功能了</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/8/30/16587fda6a00a5c1?w=559&amp;h=1020&amp;f=png&amp;s=84088" alt></p>
+<p>我们点进去发现锤友，就可以看到附近的锤友群和附近的锤友了</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/8/30/16587fe3478aaae5?w=559&amp;h=1020&amp;f=png&amp;s=69780" alt></p>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><p>开启发现锤友功能的关键步骤在于将手机的manufactur、brand、model修改成smartisan，即让手机被识别为锤子手机，在已root的真机上也是可以这样操作的。不过希望子弹短信之后可以对所有用户都开放这一功能，让我们能在子弹短信中体验到更多的乐趣。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/08/30/子弹短信没有附近的人？教你子弹短信开启附近锤友/" data-id="cjv3mk9ci0004a6i7ho1xn20b" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-非侵入式无权限应用内悬浮窗的实现" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/08/12/非侵入式无权限应用内悬浮窗的实现/" class="article-date">
+  <time datetime="2018-08-12T09:57:55.000Z" itemprop="datePublished">2018-08-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/08/12/非侵入式无权限应用内悬浮窗的实现/">非侵入式无权限应用内悬浮窗的实现</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
+<p>一般的悬浮窗实现方式，需要申请权限，并还是要对部分机型进行适配才能正常显示。那么这里，我们换一种思路，实现一个不一样的悬浮窗。</p>
+</blockquote>
+<h3 id="一、应用内悬浮窗实现思路"><a href="#一、应用内悬浮窗实现思路" class="headerlink" title="一、应用内悬浮窗实现思路"></a>一、应用内悬浮窗实现思路</h3><p>通常的悬浮窗是通过<code>WindowManager</code>直接添加的，在不同的Android系统上需要做不同的适配，在<code>Android</code>6.0以上的机型上，还需要引导用户跳转到设置界面手动开启悬浮窗权限。虽然这样实现悬浮窗有完整的解决方案，但是开启悬浮窗过程对用户并不是很友好。下面，我们换一种思路，去使用一个应用内悬浮窗，避免机型适配和权限申请的坑，让悬浮窗像普通的<code>View</code>一样显示在界面上。</p>
+<p>一般悬浮窗的实现方案是向系统<code>window</code>添加<code>type</code>为<code>TYPE_PHONE</code>或者<code>TYPE_TOAST</code>的<code>View</code>，从而使悬浮窗可以作为一个独立的<code>View</code>进行展示。<code>Android</code>对这一行为作了限制，那我们可以考虑从比较常规的途径添加<code>View</code>：向每一个展示界面，即<code>Activity</code>，添加一个<code>View</code>作为悬浮窗。这样，我们使用悬浮窗时就可以避免适配和权限问题。那么，怎么样实现这样的悬浮窗更好呢？</p>
+<p>要实现这样一个悬浮窗，相当于我们要在<code>Activity</code>加载完后将悬浮窗的<code>View</code>添加的<code>Activity</code>上，我们不想在原有的Activity上插入这段代码，这时就可以利用<code>ActivityLifecycleCallbacks</code>和<code>fragment</code>的加载特性来完成一个无侵入式的悬浮窗的显示。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/8/12/1652e8d348c2bf56?w=400&amp;h=720&amp;f=gif&amp;s=370345" alt></p>
+<h3 id="二、应用内悬浮窗的实现"><a href="#二、应用内悬浮窗的实现" class="headerlink" title="二、应用内悬浮窗的实现"></a>二、应用内悬浮窗的实现</h3><ol>
+<li>首先，我们先自定义一个<code>View</code>用于显示悬浮窗界面，就叫它<code>FloatingWindow</code>。至于怎么实现，这个各位可以自由发挥。</li>
+<li>接下来，我们要把<code>FloatingWindow</code>添加到每一个<code>Activity</code>上，这时就利用<code>ActivityLifecycleCallbacks</code>。<code>Activity</code>的每个生命周期都能回调到<code>ActivityLifecycleCallbacks</code>，这时我们只要在<code>onActivityCreated(Activity activity, Bundle savedInstanceState)</code>中加上悬浮窗<code>View</code>。但是，<code>onActivityCreated(Activity activity, Bundle savedInstanceState)</code>方法是在<code>onCreate(Bundle savedInstanceState)</code>时被调用的，我们需要保证在<code>setContentView()</code>之后才添加悬浮窗，让悬浮窗处于上层，所以我们插入一个空Fragment，利用<code>Fragment</code>的<code>onActivityCreated(Bundle savedInstanceState)</code>是在<code>Activity</code>的<code>onCreate(Bundle savedInstanceState)</code>之后的特性来加入悬浮窗。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onActivityCreated(Activity activity, Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onActivityCreated(activity, savedInstanceState);</span><br><span class="line"></span><br><span class="line">        if (activity instanceof FragmentActivity) &#123;</span><br><span class="line">            FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();</span><br><span class="line">            fm.beginTransaction().add(new SupportFragment(), FRAGMENT_TAG).commitAllowingStateLoss();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">public static class SupportFragment extends Fragment &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onActivityCreated(@Nullable Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onActivityCreated(savedInstanceState);</span><br><span class="line"></span><br><span class="line">        Activity activity = getActivity();</span><br><span class="line">        if (activity != null) &#123;</span><br><span class="line">            FloatingWindow fw = new FloatingWindow(activity);</span><br><span class="line">            activity.addContentView(fw, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>通过这几行核心代码，我们便完成了一个不需要权限申请的悬浮窗。细节一点的实现可以参考我的demo：<a href="https://github.com/windinwork/floatingwindowdemo" target="_blank" rel="noopener">https://github.com/windinwork/floatingwindowdemo</a></p>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><p>像我们这样的悬浮窗，有优点也有缺点。优点显而易见，它不需要向系统申请特殊的权限即可正常显示；缺点的话即是每一个<code>Activity</code>都有一个悬浮窗，相互独立存在，当然这个是可以优化一下实现方式解决的，这里不细讲，另一个缺点即是这样的悬浮窗无法在应用退到后台的时候存在，当然在在合适的应用场景这也不是问题。以上便是一个无侵入式无权限的悬浮窗实现方式，希望能为小伙伴提供不同的悬浮窗实现思路。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/08/12/非侵入式无权限应用内悬浮窗的实现/" data-id="cjv3mk9cq0006a6i7375bkjcx" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+ 
+
+
+  
+    <article id="post-JockeyJS——WebView与JS交互解决方案，开源库使用和解析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/" class="article-date">
+  <time datetime="2018-06-15T09:55:52.000Z" itemprop="datePublished">2018-06-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/">JockeyJS——WebView与JS交互解决方案，开源库使用和解析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
+<p>在Android上，对于JS交互，往往是通过系统原生提供的<code>@JavascriptInterface</code>这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开<code>@JavascriptInterface</code>的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的方法调用和回调有着不错的封装，于是便有了分析JockeyJS一文。</p>
+</blockquote>
+<h3 id="一、JockeyJS基本使用"><a href="#一、JockeyJS基本使用" class="headerlink" title="一、JockeyJS基本使用"></a>一、JockeyJS基本使用</h3><p>JockeyJS是几年前的库了，虽然是比较久的库，但放到现在仍然可用。</p>
+<p>首先，需要在h5页面上引用项目中的<code>jockey.js</code></p>
+<p>接下来在客户端进行配置，JockeyJS主要通过<code>on(String type, JockeyHandler ... handler)</code>和<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code><br>两个方法来实现Java与JS之间的交互。</p>
+<ul>
+<li><p><code>on(String type, JockeyHandler ... handler)</code>这一接口让我们可以在Java上提供给JS需要调用的方法，类似于<code>@JavascriptInterface</code>的功能，<code>type</code>是我们提供的方法名，<code>handler</code>中的回调是我们运行的代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jockey.on(&quot;useJavaMethod&quot;, new JockeyHandler() &#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected void doPerform(Map&lt;Object, Object&gt; payload) &#123;</span><br><span class="line">		// do something</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>用于Java调用JS方法，<code>type</code>是调用的方法名，<code>toWebView</code>是调用的webView，<code>withPayload</code>是参数，会转成json传递，<code>complete</code>是调用成功后的回调。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jockey.send(&quot;useJsFuntion&quot;, webView, null, new JockeyCallback() &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void call() &#123;</span><br><span class="line">		// secceed to use js function</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="二、JockeyJS原理解析"><a href="#二、JockeyJS原理解析" class="headerlink" title="二、JockeyJS原理解析"></a>二、JockeyJS原理解析</h3><p>参考JockeyJS提供的demo，在JockeyJS生效前，需要进行以下设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jockey = JockeyImpl.getDefault();</span><br><span class="line">jockey.configure(webView);</span><br><span class="line">setJockeyEvents();</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>JockeyImpl.getDefault()</code>这里提供了对<code>Jockey</code>接口的默认实现，也就是对于JS交互这一核心功能的实现。</li>
+<li><code>jockey.configure(webView)</code>向JockeyJS传入webView，JockeyJS会对webView进行<code>setJavaScriptEnabled(boolean)</code>和<code>setWebViewClient(WebViewClient)</code>的设置。</li>
+<li><code>setJockeyEvents()</code>即一系列的<code>on(String type, JockeyHandler ... handler)</code>操作，添加可供调用的Java方法。</li>
+</ul>
+<p>这样的话我们主要关注<code>JockeyImpl.getDefault()</code>的实现。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static Jockey getDefault() &#123;</span><br><span class="line">	return new DefaultJockeyImpl();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见该方法返回的是<code>DefaultJockeyImpl</code>。跟进<code>DefaultJockeyImpl</code>，发现该类也是继承了<code>JockeyImpl</code>类的，我们先来看<code>DefaultJockeyImpl</code>实现。主要看<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>。</p>
+<h4 id="1-Java调用JS的实现"><a href="#1-Java调用JS的实现" class="headerlink" title="1. Java调用JS的实现"></a>1. Java调用JS的实现</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public void send(String type, WebView toWebView, Object withPayload, JockeyCallback complete) &#123;</span><br><span class="line">	int messageId = messageCount;</span><br><span class="line"></span><br><span class="line">	if (complete != null) &#123;</span><br><span class="line">		add(messageId, complete);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if (withPayload != null) &#123;</span><br><span class="line">		withPayload = gson.toJson(withPayload);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	String url = String.format(&quot;javascript:Jockey.trigger(\&quot;%s\&quot;, %d, %s)&quot;,</span><br><span class="line">			type, messageId, withPayload);</span><br><span class="line">	toWebView.loadUrl(url);</span><br><span class="line"></span><br><span class="line">	++messageCount;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法中有一个<code>messageId</code>，这个<code>messageId</code>是做什么用的放在之后再解析。<code>withPayload</code>这个容易理解，是用来传递参数的。接下来，webView进行<code>loadUrl(String url)</code>，这个url是<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>方法的关键。url的格式是<code>javascript:Jockey.trigger(\&quot;%s\&quot;, %d, %s)</code>，即调用了Html的<code>window.Jockey.trigger(type, messageId, json)</code>方法，JS会通过type去匹配相对应的函数并且调用，JS层的具体实现这里不讲。</p>
+<p>在和JS交互的业务中，往往需要在调用完JS函数后有一个回调，以便通知我们该函数运行完成，可以继续后续操作。JockeyJS已经集成了这一逻辑。当调用<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>时，会将一个自增的<code>messageId</code>和一个<code>JockeyCallback</code>一一对应保存在<code>_callbacks</code>变量中，Java层将<code>messageId</code>和函数名一起传给JS，JS在运行完相关函数后，会使用该<code>messageId</code>通知Java（通知方式见<code>JS调用Java的实现</code>），Java层的JackeyJS通过<code>messageId</code>找到<code>JockeyCallback</code>并调用来完成回调。这一层逻辑不暴露给开发者，开发者只需要关心JockeyCallback的实现，大大方便了回调的处理。</p>
+<h4 id="2-JS调用Java的实现"><a href="#2-JS调用Java的实现" class="headerlink" title="2. JS调用Java的实现"></a>2. JS调用Java的实现</h4><p>JS调用Java不通过<code>@JavascriptInterface</code>，那是怎么调用的呢？通过<code>JockeyImpl</code>类可以找到，JockeyJS对webView设置了自己的<code>JockeyWebViewClient</code>，<code>JockeyWebViewClient</code>的特别之处在于重写了<code>shouldOverrideUrlLoading(WebView view, String url)</code>方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</span><br><span class="line">	...</span><br><span class="line">	if (isJockeyScheme(uri)) &#123;</span><br><span class="line">		processUri(view, uri);</span><br><span class="line">		return true;</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里<code>isJockeyScheme(uri)</code>对url进行了判断：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public boolean isJockeyScheme(URI uri) &#123;</span><br><span class="line">	return uri.getScheme().equals(&quot;jockey&quot;) &amp;&amp; !uri.getQuery().equals(&quot;&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当url的scheme为<code>jockey</code>时，即url是以jockey://xxx这种格式存在时，JockeyJS会对该url进行拦截，交给应用自己处理，调用<code>processUri(WebView view, URI uri)</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public void processUri(WebView view, URI uri)</span><br><span class="line">		throws HostValidationException &#123;</span><br><span class="line">	String[] parts = uri.getPath().replaceAll(&quot;^\\/&quot;, &quot;&quot;).split(&quot;/&quot;);</span><br><span class="line">	String host = uri.getHost();</span><br><span class="line"></span><br><span class="line">	JockeyWebViewPayload payload = checkPayload(_gson.fromJson(</span><br><span class="line">			uri.getQuery(), JockeyWebViewPayload.class));</span><br><span class="line"></span><br><span class="line">	if (parts.length &gt; 0) &#123;</span><br><span class="line">		if (host.equals(&quot;event&quot;)) &#123;</span><br><span class="line">			getImplementation().triggerEventFromWebView(view, payload);</span><br><span class="line">		&#125; else if (host.equals(&quot;callback&quot;)) &#123;</span><br><span class="line">			getImplementation().triggerCallbackForMessage(</span><br><span class="line">					Integer.parseInt(parts[0]));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>JockeyJS从url中取出host和parts，判断host为”event”时，JockeyJS调用<code>getImplementation().triggerEventFromWebView</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">protected void triggerEventFromWebView(final WebView webView,</span><br><span class="line">		JockeyWebViewPayload envelope) &#123;</span><br><span class="line">	final int messageId = envelope.id;</span><br><span class="line">	String type = envelope.type;</span><br><span class="line"></span><br><span class="line">	if (this.handles(type)) &#123;</span><br><span class="line">		JockeyHandler handler = _listeners.get(type);</span><br><span class="line"></span><br><span class="line">		handler.perform(envelope.payload, new OnCompletedListener() &#123;</span><br><span class="line">			@Override</span><br><span class="line">			public void onCompleted() &#123;</span><br><span class="line">				_handler.post(new Runnable() &#123;</span><br><span class="line">					@Override</span><br><span class="line">					public void run() &#123;</span><br><span class="line">						triggerCallbackOnWebView(webView, messageId);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>JockeyJS通过<code>envelope.type</code>从<code>_listeners</code>拿到对应的<code>JockeyHandler</code>，这些<code>JockeyHandler</code>就是我们初始化JockeyJS时通过<code>on(String type, JockeyHandler ... handler)</code>加入的。接着<code>perform(Map&lt;Object, Object&gt; payload, OnCompletedListener listener)</code>调用<code>doPerform(Map&lt;Object, Object&gt; payload)</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protected void doPerform(Map&lt;Object, Object&gt; payload) &#123;</span><br><span class="line">	for (JockeyHandler handler : _handlers)</span><br><span class="line">		handler.perform(payload, this._accumulator);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到是对我们注册的<code>JockeyHandler</code>进行调用，这样便实现了JS对Java方法的调用。</p>
+<p>单单到这一步还没完成JockeyJS的这一调用流程，接下来成JockeyJS会在<code>doPerform(Map&lt;Object, Object&gt; payload)</code>完成后，通过<code>triggerCallbackOnWebView(webView, messageId)</code>回调JS，通知JS层方法已执行完毕，由JS去执行后续操作。</p>
+<p><code>triggerCallbackOnWebView(webView, messageId)</code>的实现类似于<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>，在此就不赘述。</p>
+<p>回到host的判断，还有一种host为”callback”的情况，此时JockeyJS会调用<code>getImplementation().triggerCallbackForMessage(int messageId)</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">protected void triggerCallbackForMessage(int messageId) &#123;</span><br><span class="line">	try &#123;</span><br><span class="line">		JockeyCallback complete = _callbacks.get(messageId, _DEFAULT);</span><br><span class="line">		complete.call();</span><br><span class="line">	&#125; catch (Exception e) &#123;</span><br><span class="line">		e.printStackTrace();</span><br><span class="line">	&#125;</span><br><span class="line">	_callbacks.remove(messageId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>很简单，该方法是通知messageId从_callbacks中取出JockeyCallback并调用，即在上文中提到的<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code>接收JS回调的实现。</p>
+<h3 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h3><p>JockeyJS无疑是封装良好的用于JS交互的库，不仅仅适用于Android，也兼容iOS平台。通过<code>webView.loadUrl(&quot;javascript:xxx&quot;)</code>和<code>shouldOverrideUrlLoading(WebView view, String url)</code>方法达到Java和JS的相互调用，并封装了回调逻辑，大大方便业务的开发。当然，随着项目业务需求的增加，JockeyJS还是有可以优化的空间，但是JockeyJS的整体封装值得参考，特别是对于初始项目，可以在JS交互上少走一点弯路。感兴趣的同学也可以继续阅读JockeyJS在JS层和iOS层的代码实现。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/" data-id="cjv3mk9cv0008a6i720o862pg" class="article-share-link">分享</a>
       
       
       
@@ -127,16 +739,12 @@
      
     <div class="widget follow">
       
-              <a class="github" aria-hidden="true" href="https://github.com/giscafer" target="_blank" title="Github"></a>
+              <a class="github" aria-hidden="true" href="https://github.com/windinwork" target="_blank" title="Github"></a>
       
       
-            <a class="weibo" aria-hidden="true" href="http://weibo.com/laohoubin" target="_blank" title="微博"></a>
       
       
-              <a class="zhihu" aria-hidden="true" href="http://www.zhihu.com/people/giscafer" target="_blank" title="知乎"></a>
-      
-      
-            <a class="email" aria-hidden="true" href="mailto:youemail@outlook.com" target="_blank" title="邮箱"></a>
+            <a class="email" aria-hidden="true" href="mailto:windinwork@gmail.com" target="_blank" title="邮箱"></a>
       
     </div>
   </div>
@@ -157,7 +765,23 @@
       <ul>
         
           <li>
-            <a href="/2019/04/30/hello-world/">Hello World</a>
+            <a href="/2019/04/04/Flutter状态管理学习手册二——Redux/">Flutter状态管理学习手册二——Redux</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/">Flutter状态管理学习手册一——ScopedModel</a>
+          </li>
+        
+          <li>
+            <a href="/2019/01/28/Android应用集成Office文件能力完全攻略/">Android应用集成Office文件能力完全攻略</a>
+          </li>
+        
+          <li>
+            <a href="/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/">使用Gradle编写蒲公英自动上传安装包和更新说明脚本</a>
+          </li>
+        
+          <li>
+            <a href="/2018/11/12/美团多渠道打包工具Walle源码解析/">美团多渠道打包工具Walle源码解析</a>
           </li>
         
       </ul>
@@ -169,7 +793,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title archive">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -196,13 +820,6 @@
   
     <!--微信公众号二维码-->
 
-  <div class="widget-wrap">
-    <h3 class="follow-title ">WeChat</h3>
-    <div class="widget wechat-widget">
-        <img src="http://blog.giscafer.com/static/images/qrcode_giscafer.jpg" alt="扫码关注" width="250">
-    </div>
-  </div>
-
 
   
 </aside>
@@ -216,7 +833,7 @@
       主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
     </div>
      <div id="footer-right">
-      联系方式&nbsp;|&nbsp;youemail@outlook.com
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
     </div>
   </div>
 </footer>

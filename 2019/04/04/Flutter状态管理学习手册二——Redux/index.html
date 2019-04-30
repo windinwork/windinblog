@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Flutter状态管理学习手册二——Redux | 千熊的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="上一篇讲到了一个简单的状态管理架构—— ScopedModel , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：https://github.com/windinwork/flutter_redux_app  一、Redux 的准备工作Redux 的概念源于 React，对于不是从事前端工作或者没有接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter状态管理学习手册二——Redux">
+<meta property="og:url" content="http://windinpub.com/2019/04/04/Flutter状态管理学习手册二——Redux/index.html">
+<meta property="og:site_name" content="千熊的博客">
+<meta property="og:description" content="上一篇讲到了一个简单的状态管理架构—— ScopedModel , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：https://github.com/windinwork/flutter_redux_app  一、Redux 的准备工作Redux 的概念源于 React，对于不是从事前端工作或者没有接">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e7200b2f3f0ad?w=760&h=392&f=png&s=12109">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e66de9a14380d?w=370&h=672&f=gif&s=603185">
+<meta property="og:updated_time" content="2019-04-30T10:04:17.484Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter状态管理学习手册二——Redux">
+<meta name="twitter:description" content="上一篇讲到了一个简单的状态管理架构—— ScopedModel , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：https://github.com/windinwork/flutter_redux_app  一、Redux 的准备工作Redux 的概念源于 React，对于不是从事前端工作或者没有接">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e7200b2f3f0ad?w=760&h=392&f=png&s=12109">
+  
+    <link rel="alternate" href="/atom.xml" title="千熊的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://windinpub.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">千熊的博客</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flutter状态管理学习手册二——Redux" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/04/Flutter状态管理学习手册二——Redux/" class="article-date">
+  <time datetime="2019-04-04T10:00:56.000Z" itemprop="datePublished">2019-04-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flutter状态管理学习手册二——Redux
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p>上一篇讲到了一个简单的状态管理架构—— <a href="https://juejin.im/post/5ca2c0266fb9a05e345bcdd4" target="_blank" rel="noopener">ScopedModel</a> , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：<a href="https://github.com/windinwork/flutter_redux_app" target="_blank" rel="noopener">https://github.com/windinwork/flutter_redux_app</a></p>
+</blockquote>
+<h3 id="一、Redux-的准备工作"><a href="#一、Redux-的准备工作" class="headerlink" title="一、Redux 的准备工作"></a>一、Redux 的准备工作</h3><p>Redux 的概念源于 React，对于不是从事前端工作或者没有接触过 React 的人要理解 Redux 会比较繁复。对于不了解 Redux 的小伙伴，这里有两篇很不错的文章介绍了 Redux 的概念和相关知识：</p>
+<p><a href="http://www.ruanyifeng.com/blog/2016/09/redux_tutorial_part_one_basic_usages.html" target="_blank" rel="noopener">Redux 入门教程（一）：基本用法</a></p>
+<p><a href="http://www.ruanyifeng.com/blog/2016/09/redux_tutorial_part_two_async_operations.html" target="_blank" rel="noopener">Redux 入门教程（二）：中间件与异步操作</a></p>
+<h3 id="二、Redux的概念"><a href="#二、Redux的概念" class="headerlink" title="二、Redux的概念"></a>二、Redux的概念</h3><p>学习后 Redux 可以了解到，Redux 主要由涉及下面几种概念：</p>
+<ul>
+<li>Store，是保存数据的地方。整个应用只能有一个 Store 。Store 有十分重要的方法 dispatch(action) 来发送 Action。</li>
+<li>State，是某个时间点的数据快照， 一个 State 对应一个 View。只要 State 相同，View 就相同。</li>
+<li>Action，是 View 发出的通知，通过 Reducer 使 State 发生变化。</li>
+<li>Reducer，是一个纯函数，接受 Action 和当前 State 作为参数，返回一个新的 State。</li>
+<li>Middleware，中间件，它的操作在发出 Action 和执行 Reducer 这两步之间发生，用于增加额外功能，如处理异步操作或者打印日志功能等。</li>
+</ul>
+<p>Redux 的工作流程如图所示，先用户发出 Action ，Store自动给 Middleware 进行处理，再传递给 Reducer ， Reducer 会返回新的 State ，通过 Store 触发重新渲染 View。这里的 View 在 Flutter 中以 Widget 的形式存在。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/4/169e7200b2f3f0ad?w=760&amp;h=392&amp;f=png&amp;s=12109" alt></p>
+<p>以上这部分是 Redux 的内容，比较容易理解。</p>
+<h3 id="三、Flutter中Redux的使用"><a href="#三、Flutter中Redux的使用" class="headerlink" title="三、Flutter中Redux的使用"></a>三、Flutter中Redux的使用</h3><p>在 Flutter 中，我们除了引入 redux 第三方库之外，还要引入 flutter_redux 第三方库 ，并且，为了对异步操作有更好的支持，还要引入 redux_thunk 库作为 Middleware ，对 thunk action 有更好的支持。</p>
+<p>下面来了解 flutter_redux 中的概念。</p>
+<ol>
+<li><p>StoreProvider ，是一个基础 Widget ，一般在应用的入口处作为父布局使得，用于传递 Store 。</p>
+</li>
+<li><p>StoreConnector ，一个可以获取 Store 的 Widget ，作用是响应 Store 发出的状态改变事件来重建 UI。</p>
+</li>
+</ol>
+<ul>
+<li><p><code>StoreConnector</code> 中有两个标记为@required 的参数，一个是 converter ， converter 用于将 store 中的 state 转化为 viewModel，另一个是 builder，builder 的作用是将 viewModel 进一步转化为 UI 布局。</p>
+</li>
+<li><p><code>StoreConnector</code> 有一个值得一提的函数：onInit，在这个函数中可以执行初始化操作。</p>
+</li>
+</ul>
+<ol start="3">
+<li>对于异步操作，我们引入了 redux_thunk 库，redux_thunk 库是一个中间件，它会处理 thunkAction。thunkAction 是只包含一个 Store 类型参数的函数。</li>
+</ol>
+<p>通过 StoreProvider 和 StoreConnector 就可以在 Flutter 实现 Redux 的功能了，接下来是具体实践。</p>
+<h3 id="四、Redux-的实践"><a href="#四、Redux-的实践" class="headerlink" title="四、Redux 的实践"></a>四、Redux 的实践</h3><p>这里以常见的获取列表选择列表为例子。一个页面用于展示选中项和跳转到列表，一个页面用于显示列表。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/4/169e66de9a14380d?w=370&amp;h=672&amp;f=gif&amp;s=603185" alt></p>
+<h4 id="1-引入-Redux-的第三方库"><a href="#1-引入-Redux-的第三方库" class="headerlink" title="1. 引入 Redux 的第三方库"></a>1. 引入 Redux 的第三方库</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redux: ^3.0.0</span><br><span class="line">flutter_redux: ^0.5.3</span><br><span class="line">redux_thunk: ^0.2.1</span><br></pre></td></tr></table></figure>
+<h4 id="2-创建-Store"><a href="#2-创建-Store" class="headerlink" title="2. 创建 Store"></a>2. 创建 Store</h4><p>Store 全局只有一个，这里封装一个创建 Store 的方法。创建Store时，传入 Reducer ，初始化的 State 和 Middleware 。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Store&lt;AppState&gt; createStore() &#123;</span><br><span class="line">  return Store(appReducer, initialState: AppState.initial(), middleware: [</span><br><span class="line">    // 引入 thunk action 的中间件</span><br><span class="line">    thunkMiddleware</span><br><span class="line">  ]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="3-创建-State"><a href="#3-创建-State" class="headerlink" title="3. 创建 State"></a>3. 创建 State</h4><p>State 状态，需要创建一个 <code>AppState</code>，作为整个应用的 state，除此之外，根据不同的页面可以有不同的 State，比如有一个列表页面 <code>ListPage</code> ，就可以有一个列表状态 <code>ListState</code> ，并且 <code>ListState</code> 会放在 <code>AppState</code> 中作为成员变量进行管理。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// app state</span><br><span class="line">class AppState &#123;</span><br><span class="line">  ListState listState;</span><br><span class="line"></span><br><span class="line">  AppState(this.listState);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// list state</span><br><span class="line">class ListState &#123;</span><br><span class="line">  bool _init = false; // 列表初始化标志</span><br><span class="line">  List&lt;String&gt; _list = []; // 列表数据</span><br><span class="line">  String _selected = &apos;未选中&apos;; // 选中的列表项</span><br><span class="line">  </span><br><span class="line">  ListState(this._init, this._list, this._selected);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="4-创建-Action"><a href="#4-创建-Action" class="headerlink" title="4. 创建 Action"></a>4. 创建 Action</h4><p>Action 是 Widget 在用户操作后发出的通知。对于 <code>ListPage</code> 页面，创建一个 <code>list_action.dart</code> 文件，用于存在可发出的 Action 。在示例中，需要用到两个 Action 。一个是加载完成列表数据后发出的 Action ，用于刷新列表，一个是选中列表项时发出的 Action 。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 加载完成列表数据</span><br><span class="line"> */</span><br><span class="line">class FetchListAction &#123;</span><br><span class="line">  List&lt;String&gt; list;</span><br><span class="line"></span><br><span class="line">  FetchListAction(this.list);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 选择列表</span><br><span class="line"> */</span><br><span class="line">class SelectItemAction &#123;</span><br><span class="line">  String selected;</span><br><span class="line"></span><br><span class="line">  SelectItemAction(this.selected);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="5-创建-Reducer"><a href="#5-创建-Reducer" class="headerlink" title="5. 创建 Reducer"></a>5. 创建 Reducer</h4><p>Reducer 是一个带 State 和 Action 两个参数的纯函数，在这里，只需要关心根据传入的 Action 和旧的 State，返回一个新的 State。</p>
+<p>和 State 一样，reducer 也分为应用的 <code>app_reducer</code> 和列表页面的 <code>list_reducer</code>。</p>
+<p>Reducer是纯函数。在示例中通过 <code>app_reducer</code> 返回一个新的 <code>AppState</code> ，通过 <code>list_reducer</code> 分别对 <code>FetchListAction</code> 和 <code>SelectItemAction</code> 进行处理返回一个新的 <code>ListState</code> 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AppState appReducer(AppState state, dynamic action) &#123;</span><br><span class="line">  return AppState(listReducer(state.listState, action));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ListState listReducer(ListState pre, dynamic action) &#123;</span><br><span class="line">  if (action is FetchListAction) &#123;</span><br><span class="line">    return ListState(true, action.list, pre.selected);</span><br><span class="line">  &#125;</span><br><span class="line">  if (action is SelectItemAction) &#123;</span><br><span class="line">    return ListState(pre.isInit, pre.list, action.selected);</span><br><span class="line">  &#125;</span><br><span class="line">  return pre;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="6-使用-Thunk-Action"><a href="#6-使用-Thunk-Action" class="headerlink" title="6. 使用 Thunk Action"></a>6. 使用 Thunk Action</h4><p>在创建 Store 时引入了 <code>thunkMiddleware</code> ，使得项目支持 thunk action。</p>
+<p>项目中需要一个加载列表的异步操作，可通过 thunk action 实现具体操作，注意 <code>ThunkAction</code> 是只有一个 <code>store</code> 参数的函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ThunkAction&lt;AppState&gt; fetchList = (Store&lt;AppState&gt; store) async &#123;</span><br><span class="line">  // 模拟网络请求</span><br><span class="line">  await Future.delayed(Duration(milliseconds: 3000));</span><br><span class="line">  var list = [</span><br><span class="line">    &quot;1. Redux State Management&quot;,</span><br><span class="line">    &quot;2. Redux State Management&quot;,</span><br><span class="line">    &quot;3. Redux State Management&quot;,</span><br><span class="line">    &quot;4. Redux State Management&quot;,</span><br><span class="line">    &quot;5. Redux State Management&quot;,</span><br><span class="line">    &quot;6. Redux State Management&quot;,</span><br><span class="line">    &quot;7. Redux State Management&quot;,</span><br><span class="line">    &quot;8. Redux State Management&quot;,</span><br><span class="line">    &quot;9. Redux State Management&quot;,</span><br><span class="line">    &quot;10. Redux State Management&quot;</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  store.dispatch(FetchListAction(list));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="7-UI-布局"><a href="#7-UI-布局" class="headerlink" title="7. UI 布局"></a>7. UI 布局</h4><p>通过以上代码，我们做好了 Redux 的准备工作。接下来便可以布局页面。</p>
+<p>① 在 <code>main.dart</code> 中，要做的工作是创建 Store，和使用 StoreProider 作为根布局。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">  // 创建Store</span><br><span class="line">  var store = createStore();</span><br><span class="line">  // 使用StoreProvider作为根布局</span><br><span class="line">  return StoreProvider&lt;AppState&gt;(</span><br><span class="line">      store: store,</span><br><span class="line">      child: MaterialApp(</span><br><span class="line">        title: &apos;Flutter Demo&apos;,</span><br><span class="line">        theme: ThemeData(</span><br><span class="line">          primarySwatch: Colors.blue,</span><br><span class="line">        ),</span><br><span class="line">        home: ShowPage(),</span><br><span class="line">      ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>② <code>show_page.dart</code> ，用于显示选中的列表项和提供跳转到 <code>ListPage</code> 的按钮入口。</p>
+<p><code>show_page.dart</code> 中，选中的列表项的数据来自于 Store，所以这里使用 StoreConnector 来根据数据构建 UI 界面。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">StoreConnector&lt;AppState, String&gt;(</span><br><span class="line">  converter: (store) =&gt; store.state.listState.selected,</span><br><span class="line">  builder: (context, selected) &#123;</span><br><span class="line">    return Text(selected);</span><br><span class="line">  &#125;,</span><br><span class="line">),</span><br></pre></td></tr></table></figure>
+<p>从上面可见，StoreConnector 需要两个泛型，一个是我们创建的 AppState，另一个是 ViewModel，这里我们直接将 String 作为 ViewModel。</p>
+<p>StoreConnector 要定义两个函数，一个是 converter，从 Store 中拿出选中的列表项数据 store.state.listState.selected，另一个是 builder，将 converter 返回的 selected 进一步转化为界面：Text(selected)。</p>
+<p>这就是 StoreConnector 的用法。</p>
+<p>③ list_page.dart</p>
+<p><code>list_page.dart</code> 中的内容比较重点，里面实现了加载列表和点击列表的功能。</p>
+<p><code>list_page.dart</code> 中一开始要显示加载中的界面，等待数据成功加载后显示列表界面。这里也是用 StoreConnector 构建 UI。StoreConnector 将 AppState 转换为 ListState，通过 ListState 判断当前显示 loading 界面还是列表界面。</p>
+<p>另外，在 StoreConnector 的 onInit 函数中执行加载列表的操作。</p>
+<p>由于加载列表是一个异步操作，所以要用到之前定义的 <code>fetchList</code> 的 thunk action，这里通过 <code>store.dispatch(fetchList)</code> 来执行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">StoreConnector&lt;AppState, ListState&gt;(</span><br><span class="line">    // 初始化时加载列表</span><br><span class="line">    onInit: (store) &#123;</span><br><span class="line">  if (!store.state.listState.isInit) &#123;</span><br><span class="line">    store.dispatch(fetchList);</span><br><span class="line">  &#125;</span><br><span class="line">  // 将store的state转化为viewModel</span><br><span class="line">&#125;, converter: (store) &#123;</span><br><span class="line">  return store.state.listState;</span><br><span class="line">  // 通过viewModel更新界面</span><br><span class="line">&#125;, builder: (contxet, state) &#123;</span><br><span class="line">  // 根据状态显示界面</span><br><span class="line">  if (!state.isInit) &#123;</span><br><span class="line">    // 显示loading界面</span><br><span class="line">    return buildLoad();</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    // 显示列表界面</span><br><span class="line">    var list = state.list;</span><br><span class="line">    return buildList(list);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>另外，点击列表时也要发出一个选中列表项目的 Action ，即之前定义的 <code>SelectItemAction</code> 。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var store = StoreProvider.of&lt;AppState&gt;(context);</span><br><span class="line">store.dispatch(SelectItemAction(list[index]));</span><br><span class="line">// 返回到上一级页面</span><br><span class="line">Navigator.pop(context);</span><br></pre></td></tr></table></figure></p>
+<p><code>store.dispatch(action)</code> 发出的 Action 经过 Middleware 和 Reducer 的处理后，转变成 State，StoreConnector 就会自动地根据 State 重建 UI。</p>
+<p>这样，一个使用 Redux 架构的应用就基本成型了。完整代码可以参考<a href="https://github.com/windinwork/flutter_redux_app" target="_blank" rel="noopener">https://github.com/windinwork/flutter_redux_app</a></p>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>在 Redux 中，数据总是”单向流动”的，保证了流程的清晰。相对于 ScopedModel 的架构， Redux 无疑更加规范，更易于开发和维护。只是， Redux 会相对地增加复杂性，所以，简单小型的项目可以不需要去考虑引进 Redux 这种架构，但对于大型的 Flutter 项目来说， Redux 就十分有用的架构。</p>
+<h3 id="六、思考"><a href="#六、思考" class="headerlink" title="六、思考"></a>六、思考</h3><p>由于 Redux 只有一个应用只有一个 Store ，所以应用需要对整个 AppState 进行维护，在大型客户端代码迭代过程中，会和组件化和单独模块编译运行这种需求相矛盾，这是否会阻碍 Redux 成为大型项目采用的主要架构的因素呢？</p>
+<h3 id="参考目录"><a href="#参考目录" class="headerlink" title="参考目录"></a>参考目录</h3><p><a href="https://medium.com/flutterpub/flutter-redux-thunk-27c2f2b80a3b" target="_blank" rel="noopener">Flutter Redux Thunk, an example finally.</a></p>
+<p><a href="https://blog.novoda.com/introduction-to-redux-in-flutter/" target="_blank" rel="noopener">Introduction to Redux in Flutter</a></p>
+<p><a href="https://github.com/roughike/inKino" target="_blank" rel="noopener">官网推荐 Sample：inKino</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2019/04/04/Flutter状态管理学习手册二——Redux/" data-id="cjv3mk9by0000a6i70k3sahzd" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Flutter状态管理学习手册一——ScopedModel</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、Redux-的准备工作"><span class="toc-number">1.</span> <span class="toc-text">一、Redux 的准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、Redux的概念"><span class="toc-number">2.</span> <span class="toc-text">二、Redux的概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、Flutter中Redux的使用"><span class="toc-number">3.</span> <span class="toc-text">三、Flutter中Redux的使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、Redux-的实践"><span class="toc-number">4.</span> <span class="toc-text">四、Redux 的实践</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-引入-Redux-的第三方库"><span class="toc-number">4.1.</span> <span class="toc-text">1. 引入 Redux 的第三方库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-创建-Store"><span class="toc-number">4.2.</span> <span class="toc-text">2. 创建 Store</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-创建-State"><span class="toc-number">4.3.</span> <span class="toc-text">3. 创建 State</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-创建-Action"><span class="toc-number">4.4.</span> <span class="toc-text">4. 创建 Action</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-创建-Reducer"><span class="toc-number">4.5.</span> <span class="toc-text">5. 创建 Reducer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-使用-Thunk-Action"><span class="toc-number">4.6.</span> <span class="toc-text">6. 使用 Thunk Action</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-UI-布局"><span class="toc-number">4.7.</span> <span class="toc-text">7. UI 布局</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、总结"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#六、思考"><span class="toc-number">6.</span> <span class="toc-text">六、思考</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考目录"><span class="toc-number">7.</span> <span class="toc-text">参考目录</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 windin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>

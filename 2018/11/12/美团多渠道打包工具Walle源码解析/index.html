@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>美团多渠道打包工具Walle源码解析 | 千熊的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="笔者现在在负责一个新的Android项目，前期功能不太复杂，安装包的体积小，渠道要求也较少，所以打渠道包使用Android Studio自带的打包方法。原生方法打渠道包大约八分钟左右就搞定了，顺便可以悠闲地享受一下这种打包方式的乐趣。但是，随着重的功能的加入和渠道的增加，原生方法打渠道包就显得有点慢了，所以集成了美团的多渠道打包工具Walle，顺便看了一下里面的实现原理。  一、概述这一次的原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="美团多渠道打包工具Walle源码解析">
+<meta property="og:url" content="http://windinpub.com/2018/11/12/美团多渠道打包工具Walle源码解析/index.html">
+<meta property="og:site_name" content="千熊的博客">
+<meta property="og:description" content="笔者现在在负责一个新的Android项目，前期功能不太复杂，安装包的体积小，渠道要求也较少，所以打渠道包使用Android Studio自带的打包方法。原生方法打渠道包大约八分钟左右就搞定了，顺便可以悠闲地享受一下这种打包方式的乐趣。但是，随着重的功能的加入和渠道的增加，原生方法打渠道包就显得有点慢了，所以集成了美团的多渠道打包工具Walle，顺便看了一下里面的实现原理。  一、概述这一次的原理">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/5/166e42d7cf64d61b?w=779&h=152&f=png&s=13494">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/8/166f3e381ff11f3e?w=690&h=156&f=png&s=17893">
+<meta property="og:updated_time" content="2019-04-30T10:05:17.093Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="美团多渠道打包工具Walle源码解析">
+<meta name="twitter:description" content="笔者现在在负责一个新的Android项目，前期功能不太复杂，安装包的体积小，渠道要求也较少，所以打渠道包使用Android Studio自带的打包方法。原生方法打渠道包大约八分钟左右就搞定了，顺便可以悠闲地享受一下这种打包方式的乐趣。但是，随着重的功能的加入和渠道的增加，原生方法打渠道包就显得有点慢了，所以集成了美团的多渠道打包工具Walle，顺便看了一下里面的实现原理。  一、概述这一次的原理">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2018/11/5/166e42d7cf64d61b?w=779&h=152&f=png&s=13494">
+  
+    <link rel="alternate" href="/atom.xml" title="千熊的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://windinpub.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">千熊的博客</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-美团多渠道打包工具Walle源码解析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/11/12/美团多渠道打包工具Walle源码解析/" class="article-date">
+  <time datetime="2018-11-12T09:58:19.000Z" itemprop="datePublished">2018-11-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      美团多渠道打包工具Walle源码解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <blockquote>
+<p>笔者现在在负责一个新的<code>Android</code>项目，前期功能不太复杂，安装包的体积小，渠道要求也较少，所以打渠道包使用<code>Android Studio</code>自带的打包方法。原生方法打渠道包大约八分钟左右就搞定了，顺便可以悠闲地享受一下这种打包方式的乐趣。但是，随着重的功能的加入和渠道的增加，原生方法打渠道包就显得有点慢了，所以集成了美团的多渠道打包工具<code>Walle</code>，顺便看了一下里面的实现原理。</p>
+</blockquote>
+<h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><p>这一次的原理分析仅仅针对<code>Android Signature V2 Scheme</code>。</p>
+<p>在上一家公司的时候，笔者所在的<code>Android</code>团队经历了<code>Android Signature V1</code>到<code>Android Signature V2</code>的变更，其中因为未及时从<code>V1</code>升级到<code>V2</code>而导致上线受阻，当时也紧急更换了新的多渠道打包工具来解决问题。在我自己使用多渠道打包工具时，不免对<code>V2</code>签名验证的方式有了一丝好奇，想去看看<code>V2</code>签名验证和多渠道打包的实现原理。</p>
+<p>该文章先从安装包<code>V2</code>签名验证入手，再从打包过程中分析<code>Walle</code>是怎么绕过签名验证在安装包上加入渠道信息，最后看<code>Walle</code>怎么从应用中读取渠道信息。在这里我就不讲<code>Walle</code>的使用了，建议读者在看原理前先了解一下使用方式。</p>
+<h3 id="二、APK-Signature-Scheme-v2"><a href="#二、APK-Signature-Scheme-v2" class="headerlink" title="二、APK Signature Scheme v2"></a>二、APK Signature Scheme v2</h3><p><code>APK Signature Scheme v2</code>的签名验证，我们先从官方一张图入手</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/5/166e42d7cf64d61b?w=779&amp;h=152&amp;f=png&amp;s=13494" alt></p>
+<p>一般情况下，我们用到的<code>zip</code>格式由三个部分组成：文件数据区+中央目录结构+中央目录结束标志，分别对应上图的<code>Contents Of ZIP entries</code>、<code>Central Directory`</code>、End of Central Directory<code>（下文简称为</code>EOCD<code>）。正如图中</code>After signing<code>所示，</code>APK Signature Scheme v2<code>是在ZIP文件格式的</code>Central Directory<code>区块所在文件位置的前面添加一个</code>APK Signing Block`区块，用于检验以上三个区块的完整性。</p>
+<p><code>APK Signing Block</code>区块的构成是这样的</p>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>字节数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@+0</td>
+<td>8</td>
+<td>这个Block的长度（本字段的长度不计算在内）</td>
+</tr>
+<tr>
+<td>@+8</td>
+<td>n</td>
+<td>一组ID-value</td>
+</tr>
+<tr>
+<td>@-24</td>
+<td>8</td>
+<td>这个Block的长度（和第一个字段一样值）</td>
+</tr>
+<tr>
+<td>@-16</td>
+<td>16</td>
+<td>魔数 “APK Sig Block 42”</td>
+</tr>
+</tbody>
+</table>
+<p>区块2中<code>APK Signing Block</code>是由这几部分组成：2个用来标示这个区块长度的8字节 ＋ 这个区块的魔数 + 这个区块所承载的数据（ID-value）。</p>
+<p>其中<code>Android</code>是通过<code>ID-value</code>对中的<code>ID</code>为<code>0x7109871a</code>的<code>ID-value</code>进行校验，对对中的其它<code>ID-value</code>是不做检验处理的，那么我们可以向<code>ID-value</code>对中添加我们自己的<code>ID-value</code>，即渠道信息，这样使安装包可以在增加了渠道信息的情况下通过<code>Android</code>的安装包检验。</p>
+<h3 id="三、写入渠道信息"><a href="#三、写入渠道信息" class="headerlink" title="三、写入渠道信息"></a>三、写入渠道信息</h3><p>通过上面的分析我们得知，写入渠道信息需要修改安装包，这时候肯定会想到使用<code>gradle</code>插件对编译后的安装包文件进行修改。如下图所示，我们也可以看到，<code>Walle</code>的源码目录中的plugin插件。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/11/8/166f3e381ff11f3e?w=690&amp;h=156&amp;f=png&amp;s=17893" alt></p>
+<p>通过分析<code>plugin</code>的<code>gradle</code>依赖，我们知道这个插件的功能实现由<code>plugin</code>、<code>payload_writer</code>、<code>payload_reader</code>三个模块构成。我们先看实现了<code>org.gradle.api.Plugin&lt;Project&gt;</code>的<code>GradlePlugin</code>类。抛开异常检查和配置相关的代码，我们从主功能代码开始看。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">void apply(Project project) &#123;</span><br><span class="line">...</span><br><span class="line">    applyExtension(project);</span><br><span class="line">    applyTask(project);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void applyTask(Project project) &#123;</span><br><span class="line">    project.afterEvaluate &#123;</span><br><span class="line">        project.android.applicationVariants.all &#123; BaseVariant variant -&gt;</span><br><span class="line">            ...</span><br><span class="line">            ChannelMaker channelMaker = project.tasks.create(&quot;assemble$&#123;variantName&#125;Channels&quot;, ChannelMaker);</span><br><span class="line">            channelMaker.targetProject = project;</span><br><span class="line">            channelMaker.variant = variant;</span><br><span class="line">            channelMaker.setup();</span><br><span class="line"></span><br><span class="line">            channelMaker.dependsOn variant.assemble;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在gradle脚本运行时会调用实现了<code>org.gradle.api.Plugin&lt;Project&gt;</code>接口的类的<code>void apply(Project project)</code>方法，我们从该方法开始跟踪。这里主要调用了<code>applyTask(project)</code>。而<code>applyTask(project)</code>中创建了一个<code>ChannelMaker</code>的<code>gradle</code>任务对象，并把这个任务对象放在<code>assemble</code>任务(即完成了打包任务)后，可见<code>Walle</code>是通过<code>ChannelMaker</code>保存渠道信息的。接下来，我们便看<code>ChannelMaker</code>这个<code>groovy</code>文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">@TaskAction</span><br><span class="line">public void packaging() &#123;</span><br><span class="line">    ...</span><br><span class="line">        checkV2Signature(apkFile)</span><br><span class="line">    ...</span><br><span class="line">        if (targetProject.hasProperty(PROPERTY_CHANNEL_LIST)) &#123;</span><br><span class="line">    ...</span><br><span class="line">            channelList.each &#123; channel -&gt;</span><br><span class="line">                generateChannelApk(apkFile, channelOutputFolder, nameVariantMap, channel, extraInfo, null)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else if (targetProject.hasProperty(PROPERTY_CONFIG_FILE)) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByConfigFile(configFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125; else if (targetProject.hasProperty(PROPERTY_CHANNEL_FILE)) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByChannelFile(channelFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125; else if (extension.configFile instanceof File) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByConfigFile(extension.configFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125; else if (extension.channelFile instanceof File) &#123;</span><br><span class="line">    ...</span><br><span class="line">            generateChannelApkByChannelFile(extension.channelFile, apkFile, channelOutputFolder, nameVariantMap)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>ChannelMaker.groovy</code>的<code>packaging()</code>方法中，做了检验操作和一堆条件判断，最后都会调用以<code>generateChannel</code>为开头命名的方法。至于判断了什么，我们不要在意这些细节。这些名字以<code>generateChannel</code>开头的方法最后都会调用到<code>generateChannelApk()</code>，看代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def generateChannelApk(File apkFile, File channelOutputFolder, Map nameVariantMap, channel, extraInfo, alias) &#123;</span><br><span class="line">    ...</span><br><span class="line">    ChannelWriter.put(channelApkFile, channel, extraInfo)</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法中比较关键的一段代码是<code>ChannelWriter.put(channelApkFile, channel, extraInfo)</code>即传入文件地址、渠道信息、<code>extra</code>信息后交由<code>ChannelWriter</code>完成写入工作。</p>
+<p><code>ChannelWriter</code>封装在由<code>payload_writer</code>模块中，里面封装了方法调用。其中<code>void put(final File apkFile, final String channel, final Map&lt;String, String&gt; extraInfo)</code>间接调用了<code>void putRaw(final File apkFile, final String string, final boolean lowMemory)</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static void putRaw(final File apkFile, final String string, final boolean lowMemory) throws IOException, SignatureNotFoundException &#123;</span><br><span class="line">    PayloadWriter.put(apkFile, ApkUtil.APK_CHANNEL_BLOCK_ID, string, lowMemory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时调用进入了<code>PayloadWriter</code>类，渠道信息写入的关键代码便在这里面。这里从<code>void put(final File apkFile, final int id, final ByteBuffer buffer, final boolean lowMemory)</code>调用到<code>void putAll(final File apkFile, final Map&lt;Integer, ByteBuffer&gt; idValues, final boolean lowMemory)</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public static void putAll(final File apkFile, final Map&lt;Integer, ByteBuffer&gt; idValues, final boolean lowMemory) throws IOException, SignatureNotFoundException &#123;</span><br><span class="line">    handleApkSigningBlock(apkFile, new ApkSigningBlockHandler() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public ApkSigningBlock handle(final Map&lt;Integer, ByteBuffer&gt; originIdValues) &#123;</span><br><span class="line">            if (idValues != null &amp;&amp; !idValues.isEmpty()) &#123;</span><br><span class="line">                originIdValues.putAll(idValues);</span><br><span class="line">            &#125;</span><br><span class="line">            final ApkSigningBlock apkSigningBlock = new ApkSigningBlock();</span><br><span class="line">            final Set&lt;Map.Entry&lt;Integer, ByteBuffer&gt;&gt; entrySet = originIdValues.entrySet();</span><br><span class="line">            for (Map.Entry&lt;Integer, ByteBuffer&gt; entry : entrySet) &#123;</span><br><span class="line">                final ApkSigningPayload payload = new ApkSigningPayload(entry.getKey(), entry.getValue());</span><br><span class="line">                apkSigningBlock.addPayload(payload);</span><br><span class="line">            &#125;</span><br><span class="line">            return apkSigningBlock;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, lowMemory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>void putAll()</code>中调用了<code>handleApkSigningBlock()</code>，顾名思义，这个方法是处理<code>APK Signing Block</code>的，将渠道信息写入<code>Block</code>中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">static void handleApkSigningBlock(final File apkFile, final ApkSigningBlockHandler handler, final boolean lowMemory) throws IOException, SignatureNotFoundException &#123;</span><br><span class="line">    RandomAccessFile fIn = null;</span><br><span class="line">    FileChannel fileChannel = null;</span><br><span class="line">    try &#123;</span><br><span class="line">        // 由安装包路径构建一个RandomAccessFile对象，用于自由访问文件位置</span><br><span class="line">        fIn = new RandomAccessFile(apkFile, &quot;rw&quot;);</span><br><span class="line">        // 获取fileChannel，通过fileChannel写文件</span><br><span class="line">        fileChannel = fIn.getChannel();</span><br><span class="line">        // 获取zip文件的comment长度</span><br><span class="line">        final long commentLength = ApkUtil.getCommentLength(fileChannel);</span><br><span class="line">        // 找到Central Directory的初始偏移量</span><br><span class="line">        final long centralDirStartOffset = ApkUtil.findCentralDirStartOffset(fileChannel, commentLength);</span><br><span class="line">        // 找到APK Signing Block</span><br><span class="line">        final Pair&lt;ByteBuffer, Long&gt; apkSigningBlockAndOffset = ApkUtil.findApkSigningBlock(fileChannel, centralDirStartOffset);</span><br><span class="line">        final ByteBuffer apkSigningBlock2 = apkSigningBlockAndOffset.getFirst();</span><br><span class="line">        final long apkSigningBlockOffset = apkSigningBlockAndOffset.getSecond();</span><br><span class="line">        // 找到APK Signature Scheme v2的ID-value</span><br><span class="line">        final Map&lt;Integer, ByteBuffer&gt; originIdValues = ApkUtil.findIdValues(apkSigningBlock2);</span><br><span class="line">        // 找到V2签名信息</span><br><span class="line">        final ByteBuffer apkSignatureSchemeV2Block = originIdValues.get(ApkUtil.APK_SIGNATURE_SCHEME_V2_BLOCK_ID);</span><br><span class="line">        // 校验签名信息是否存在</span><br><span class="line">        if (apkSignatureSchemeV2Block == null) &#123;</span><br><span class="line">            throw new IOException(</span><br><span class="line">                    &quot;No APK Signature Scheme v2 block in APK Signing Block&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        final ApkSigningBlock apkSigningBlock = handler.handle(originIdValues);</span><br><span class="line"></span><br><span class="line">        if (apkSigningBlockOffset != 0 &amp;&amp; centralDirStartOffset != 0) &#123;</span><br><span class="line"></span><br><span class="line">            // read CentralDir</span><br><span class="line">            fIn.seek(centralDirStartOffset);</span><br><span class="line"></span><br><span class="line">            byte[] centralDirBytes = null;</span><br><span class="line">            File tempCentralBytesFile = null;</span><br><span class="line">            // read CentralDir</span><br><span class="line">            ...</span><br><span class="line">                centralDirBytes = new byte[(int) (fileChannel.size() - centralDirStartOffset)];</span><br><span class="line">                fIn.read(centralDirBytes);</span><br><span class="line">            ...</span><br><span class="line"></span><br><span class="line">            //update apk sign</span><br><span class="line">            fileChannel.position(apkSigningBlockOffset);</span><br><span class="line">            final long length = apkSigningBlock.writeApkSigningBlock(fIn);</span><br><span class="line"></span><br><span class="line">            // update CentralDir</span><br><span class="line">            ...</span><br><span class="line">                // store CentralDir</span><br><span class="line">                fIn.write(centralDirBytes);</span><br><span class="line">            ...</span><br><span class="line">            // update length</span><br><span class="line">            fIn.setLength(fIn.getFilePointer());</span><br><span class="line"></span><br><span class="line">            // update CentralDir Offset</span><br><span class="line"></span><br><span class="line">            // End of central directory record (EOCD)</span><br><span class="line">            // Offset     Bytes     Description[23]</span><br><span class="line">            // 0            4       End of central directory signature = 0x06054b50</span><br><span class="line">            // 4            2       Number of this disk</span><br><span class="line">            // 6            2       Disk where central directory starts</span><br><span class="line">            // 8            2       Number of central directory records on this disk</span><br><span class="line">            // 10           2       Total number of central directory records</span><br><span class="line">            // 12           4       Size of central directory (bytes)</span><br><span class="line">            // 16           4       Offset of start of central directory, relative to start of archive</span><br><span class="line">            // 20           2       Comment length (n)</span><br><span class="line">            // 22           n       Comment</span><br><span class="line">            </span><br><span class="line">            // 定位到EOCD中Offset of start of central directory，即central directory中央目录的超始位置</span><br><span class="line">            fIn.seek(fileChannel.size() - commentLength - 6);</span><br><span class="line">            // 6 = 2(Comment length) + 4 (Offset of start of central directory, relative to start of archive)</span><br><span class="line">            final ByteBuffer temp = ByteBuffer.allocate(4);</span><br><span class="line">            temp.order(ByteOrder.LITTLE_ENDIAN);</span><br><span class="line">            // 写入修改APK Signing Block之后的central directory中央目录的超始位置</span><br><span class="line">            temp.putInt((int) (centralDirStartOffset + length + 8 - (centralDirStartOffset - apkSigningBlockOffset)));</span><br><span class="line">            // 8 = size of block in bytes (excluding this field) (uint64)</span><br><span class="line">            temp.flip();</span><br><span class="line">            fIn.write(temp.array());</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>好了，写入渠道信息的代码大致上都在这里了，结合上面的代码和注释我们来做一下分析。上文我们提到，通过往<code>APK Signing Block</code>写入渠道信息完成多渠道打包，这里简要地说明一下流程。我们是这样从安装包中找到<code>APK Signing Block</code>的：</p>
+<p>从<code>zip</code>结构中的<code>EOCD</code>出发，根据<code>EOCD</code>结构定位到<code>Offset of start of central directory（中央目录偏移量）</code>，通过中央目录偏移量找到中央目录的位置。因为<code>APK Signing Block</code>是在中央目录之前，所以我们可以从中央目录偏移量往前找到<code>APK Signing Block</code>的<code>size</code>，再通过<code>Offset of start of central directory（中央目录偏移量）</code> - <code>size</code>来确定<code>APK Signing Block</code>的起始偏移量。这时候我们知道了<code>APK Signing Block</code>的位置，就可以拿到<code>ID-value</code>对去加入渠道信息，再将修改后的<code>APK Signing Block</code>和<code>Central Directory</code>同<code>EOCD</code>一起写入文件中。</p>
+<p>这时候修改工作还没有完成，这里因为改动了<code>APK Signing Block</code>，所以在<code>APK Signing Block</code>后面的<code>Central Directory</code>起始偏移量也跟着改变了。这个起始偏移量是记录在<code>EOCD</code>中的，根据EOCD结构修改<code>Central Directory</code>的起始偏移量后写入工作就算完成了。</p>
+<p>细心的朋友会发现，不是说<code>V2</code>签名会保护<code>EOCD</code>这一区块吗，修改了里面的超始偏移量还能通过校验吗？其实<code>Android</code>系统在使用<code>V2</code>校验安装包时，会把<code>EOCD</code>的<code>Central Directory</code>的起始偏移量换成<code>APK Signing Block</code>的偏移量再进行校验，所以修改<code>EOCD</code>中<code>Central  Directory</code>的起始偏移量不会影响到校验。</p>
+<h3 id="四、读取渠道信息"><a href="#四、读取渠道信息" class="headerlink" title="四、读取渠道信息"></a>四、读取渠道信息</h3><p>在了解了<code>Walle</code>是如何写入渠道信息之后，去理解读取渠道信息就很简单了。<code>Walle</code>先拿到安装包文件，再根据<code>zip</code>文件结构找到<code>APK Signing Block</code>，从中读取出之前写入的渠道信息。具体的代码懒懒的笔者就不帖了。</p>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><p>有一部分的<code>Coder</code>总是能做出创新性的东西，基于他们对于技术的理解做出更加方便、灵活的工具。在通过对<code>Walle</code>的分析中，我们可以学到，在清楚理解了<code>zip</code>结构、<code>Android</code>安装包检验原理，运行<code>gradle plugin</code>，就可以做出一款便于打包的工具。在这里分享美团多渠道打包工具<code>Walle</code>的原理实现，希望各位看了有所收获。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2018/11/12/美团多渠道打包工具Walle源码解析/" data-id="cjv3mk9ce0003a6i7edgjzakn" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+    <a href="/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">
+        
+          使用Gradle编写蒲公英自动上传安装包和更新说明脚本
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">通过字节码看原理，带你去找kotlin中的static方法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、概述"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、APK-Signature-Scheme-v2"><span class="toc-number">2.</span> <span class="toc-text">二、APK Signature Scheme v2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、写入渠道信息"><span class="toc-number">3.</span> <span class="toc-text">三、写入渠道信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、读取渠道信息"><span class="toc-number">4.</span> <span class="toc-text">四、读取渠道信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、总结"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 windin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "e2fb4051c49842688ce669e634bc983f",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+    
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      })
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      })
+    </script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>
