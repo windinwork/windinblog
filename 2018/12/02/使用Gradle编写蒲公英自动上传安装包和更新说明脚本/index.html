@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="千熊的博客">
 <meta property="og:description" content="Github: https://github.com/windinwork/PgyerGradleApplication  平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。 笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-30T10:03:23.829Z">
+<meta property="og:updated_time" content="2019-04-30T13:37:35.449Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用Gradle编写蒲公英自动上传安装包和更新说明脚本">
 <meta name="twitter:description" content="Github: https://github.com/windinwork/PgyerGradleApplication  平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。 笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐">
@@ -53,8 +53,6 @@
           <a class="main-nav-link" href="/">首页</a>
         
           <a class="main-nav-link" href="/archives">归档</a>
-        
-          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       
@@ -98,6 +96,7 @@
 <p>平时测试中发包的时候，笔者在打完包就直接拖到蒲公英上让它上传就完事了。不过前两天的会议上，测试小姐姐提出要在蒲公英上写明这次的测试包修改了什么内容。</p>
 <p>笔者一想到上传完包还要一个个打字说明在这个包我修改了什么，立即强烈拒绝！但是测试小姐姐再三要求，碍于这确实是个好提议和会上坐着的老大，只好勉为其难地答应发包时写上改动内容T_T。但是懒惰如笔者，当然不会每次发包都手动打字啦，最好能打完包后自动把包和修改信息上传到蒲公英。</p>
 <p>虽然嘴上说着不要不要，但笔者想到写个自动化脚本还是很兴奋的。本来想看看有没有现成的蒲公英自动上传脚本，在网上搜索了一下发现都不是很对胃口，想想还是自己写算了。所以今天花了半天写了这个脚本，在这里也分享一下相关的gradle配置，以供参考。</p>
+<a id="more"></a>
 <h3 id="一、-自动上传蒲公英"><a href="#一、-自动上传蒲公英" class="headerlink" title="一、 自动上传蒲公英"></a>一、 自动上传蒲公英</h3><p>向蒲公英这样的平台一般提供API用来做一些便利的操作，我们直接打开<a href="https://www.pgyer.com/doc/api#uploadApp" target="_blank" rel="noopener">蒲公英文档</a>，可以看到用于上传安装包的API和示例的上传方法，我们便采用其中的<code>curl</code>的方法上传安装包。</p>
 <p>上传接口的参数中，有三个是必填的，分别的<code>uKey</code>、<code>_api_key</code>和<code>file</code>。<code>uKey</code>和<code>_api_key</code>我们在自己的蒲公英帐号上可以查看到，而<code>file</code>参数需要我们提供<code>apk</code>文件的路径，所以我们先想办法拿到路径。</p>
 <p>这里我们定义一个方法：<code>getApkPath()</code>，通过<code>buildDir</code> + 固定的<code>outputs/apk/${buildType}/app-${buildType}.apk</code>地址来获取<code>apk</code>路径。</p>
@@ -119,7 +118,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" data-id="cjv3nktne0004moi70tnfta7n" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2018/12/02/使用Gradle编写蒲公英自动上传安装包和更新说明脚本/" data-id="cjv3udbfs0004e5i75dm31ob1" class="article-share-link">分享</a>
       
       
       
@@ -262,8 +261,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -295,28 +292,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

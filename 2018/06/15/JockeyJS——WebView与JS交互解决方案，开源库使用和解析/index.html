@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="千熊的博客">
 <meta property="og:description" content="前言 在Android上，对于JS交互，往往是通过系统原生提供的@JavascriptInterface这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开@JavascriptInterface的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-30T09:57:13.485Z">
+<meta property="og:updated_time" content="2019-04-30T13:38:55.816Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JockeyJS——WebView与JS交互解决方案，开源库使用和解析">
 <meta name="twitter:description" content="前言 在Android上，对于JS交互，往往是通过系统原生提供的@JavascriptInterface这种方式进行交互的，而本人在项目的应该也是使用这种方式。最近听朋友提到一个库——JockeyJS，封装了JS交互逻辑，通过少量的接口让开发者只需要关注Java和JS之间的方法调用。我对它避开@JavascriptInterface的实现比较感兴趣，后来发现JockeyJS有于Java和JS之间的">
@@ -53,8 +53,6 @@
           <a class="main-nav-link" href="/">首页</a>
         
           <a class="main-nav-link" href="/archives">归档</a>
-        
-          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       
@@ -98,6 +96,7 @@
 <h3 id="一、JockeyJS基本使用"><a href="#一、JockeyJS基本使用" class="headerlink" title="一、JockeyJS基本使用"></a>一、JockeyJS基本使用</h3><p>JockeyJS是几年前的库了，虽然是比较久的库，但放到现在仍然可用。</p>
 <p>首先，需要在h5页面上引用项目中的<code>jockey.js</code></p>
 <p>接下来在客户端进行配置，JockeyJS主要通过<code>on(String type, JockeyHandler ... handler)</code>和<code>send(String type, WebView toWebView, Object withPayload, JockeyCallback complete)</code><br>两个方法来实现Java与JS之间的交互。</p>
+<a id="more"></a>
 <ul>
 <li><p><code>on(String type, JockeyHandler ... handler)</code>这一接口让我们可以在Java上提供给JS需要调用的方法，类似于<code>@JavascriptInterface</code>的功能，<code>type</code>是我们提供的方法名，<code>handler</code>中的回调是我们运行的代码。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">jockey.on(&quot;useJavaMethod&quot;, new JockeyHandler() &#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected void doPerform(Map&lt;Object, Object&gt; payload) &#123;</span><br><span class="line">		// do something</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
@@ -134,7 +133,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/" data-id="cjv3nktn80002moi7b255khhu" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2018/06/15/JockeyJS——WebView与JS交互解决方案，开源库使用和解析/" data-id="cjv3udbfp0003e5i7yi8wwd39" class="article-share-link">分享</a>
       
       
       
@@ -272,8 +271,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -305,28 +302,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

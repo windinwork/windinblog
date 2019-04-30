@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166dda8ff48082ee?w=298&h=101&f=png&s=4619">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166ddb691cc56c74?w=396&h=245&f=png&s=8292">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/4/166dddb1451b6fd6?w=779&h=277&f=png&s=22093">
-<meta property="og:updated_time" content="2019-04-30T10:02:40.374Z">
+<meta property="og:updated_time" content="2019-04-30T13:38:00.393Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="通过字节码看原理，带你去找kotlin中的static方法">
 <meta name="twitter:description" content="kotlin在被钦定为Android的官方开发语言后，越来越多的Android开发者投向kotlin的怀抱。尽管kotlin兼容Java，但在使用上还是有很大不同的，就像static关键字，我们可以用companion object来替代static，当我们用反射去调用时，会发现调用时并不像static那样直接，笔者在日常使用中就遇到这样的问题，想拿反射去调用静态方法时无法调用，所以便通过字节码">
@@ -60,8 +60,6 @@
         
           <a class="main-nav-link" href="/archives">归档</a>
         
-          <a class="main-nav-link" href="/about">关于</a>
-        
       </nav>
       
     </div>
@@ -103,6 +101,7 @@
 </blockquote>
 <h3 id="一、如何查看kotlin字节码"><a href="#一、如何查看kotlin字节码" class="headerlink" title="一、如何查看kotlin字节码"></a>一、如何查看kotlin字节码</h3><p>我们通过<code>Tools-&gt;Kotlin-&gt;Show Kotlin bytecode</code>打开<code>Kotlin</code>字节码界面，查看<code>Kotlin</code>文件的字节码形式。界面如下：</p>
 <p><img src="https://user-gold-cdn.xitu.io/2018/11/4/166dd8283c09e742?w=644&amp;h=437&amp;f=png&amp;s=45209" alt></p>
+<a id="more"></a>
 <h3 id="二、Object单例看static"><a href="#二、Object单例看static" class="headerlink" title="二、Object单例看static"></a>二、Object单例看static</h3><p>在<code>Kotlin</code>中，我们可以通过<code>Object</code>来直接实现一个单例，通过对<code>Object</code>单例中方法的调用来实现类似于<code>Java</code>中<code>static</code>方法的调用。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">object MyObject &#123;</span><br><span class="line">    val x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">    public fun foo(): String &#123;</span><br><span class="line">        return x</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>对于这个简单的<code>Object</code>单例，我们看到的字节码是这样的（省略部分字节码）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private final static Ljava/lang/String; x = &quot;x&quot;</span><br><span class="line"></span><br><span class="line">public final getX()Ljava/lang/String;</span><br><span class="line">...</span><br><span class="line">public final setX(Ljava/lang/String;)V</span><br><span class="line">..</span><br><span class="line">public final foo()Ljava/lang/String;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">public final static Lcom/tanzhouedu/testapplication/MyObject; INSTANCE</span><br></pre></td></tr></table></figure></p>
@@ -125,7 +124,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" data-id="cjv3nktno0007moi73m1oq16l" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2018/11/04/通过字节码看原理，带你去找kotlin中的static方法/" data-id="cjv3udbg00007e5i7aav98fsg" class="article-share-link">分享</a>
       
       
       
@@ -268,8 +267,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -301,28 +298,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

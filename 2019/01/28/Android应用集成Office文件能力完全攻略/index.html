@@ -15,7 +15,7 @@
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/1/19/1686501b9e843889?w=1061&h=498&f=png&s=50584">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/1/23/168788349cf04caa?w=1080&h=2280&f=jpeg&s=152346">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/1/23/168787ebe9b1ff09?w=380&h=611&f=png&s=19921">
-<meta property="og:updated_time" content="2019-04-30T10:03:41.962Z">
+<meta property="og:updated_time" content="2019-04-30T13:38:41.177Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android应用集成Office文件能力完全攻略">
 <meta name="twitter:description" content="不同于iOS，Android的webView不支持打开office和pdf文档，所以当我们遇到在应用内打开office和pdf文档的需求时，往往无法从系统原生功能去支持。这篇文章的写下笔者在Android应用中集成office和pdf文件能力的心得，附上demo地址：https://github.com/windinwork/OfficeApplication  一、确定解决方案Android应">
@@ -57,8 +57,6 @@
           <a class="main-nav-link" href="/">首页</a>
         
           <a class="main-nav-link" href="/archives">归档</a>
-        
-          <a class="main-nav-link" href="/about">关于</a>
         
       </nav>
       
@@ -108,6 +106,7 @@
 </ol>
 <p>四种方案各有优劣，这里笔者选择了x5 sdk为主要手段，第三方应用辅助的这样一种解决方案</p>
 <h3 id="二、集成x5内核"><a href="#二、集成x5内核" class="headerlink" title="二、集成x5内核"></a>二、集成x5内核</h3><p>腾讯官方提供的x5内核有两个版本，这里选择具有文件能和的sdk：</p>
+<a id="more"></a>
 <p><img src="https://user-gold-cdn.xitu.io/2019/1/19/1686501b9e843889?w=1061&amp;h=498&amp;f=png&amp;s=50584" alt></p>
 <p>接下来的集成可以参考<a href="https://x5.tencent.com/tbs/guide/sdkInit.html" target="_blank" rel="noopener">x5内核接入文档</a>，这里便不详述。集成的主要工作便是集成jar包和so文件，并在Application初始化时调用QbSdk.initX5Environment(context, callback)来完成初始化工作。</p>
 <h3 id="三、集成TbsReader"><a href="#三、集成TbsReader" class="headerlink" title="三、集成TbsReader"></a>三、集成TbsReader</h3><p>x5内核中提供了TbsReaderView，让我们可以通过这个类在App中显示文档。考虑到TbsReaderView这个类具有生命周期的方法，我们把它封装在一个Fragment中，方便我们的调用。TbsReaderView的主要方法有两个，一个是preOpen(String, boolean)，另一个是openFile(Bundle)。preOpen(String, boolean)是用来检测x5文件能力是否成功初始化和是否支持打开文件的格式，当符合打开文件的条件时该方法返回true；openFile(Bundle)则是在preOpen(String, boolean)的返回值为true的情况进行调用，顾名思义这个方法是用来打开文件的，其中bundle用来传入文件路径。</p>
@@ -124,7 +123,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2019/01/28/Android应用集成Office文件能力完全攻略/" data-id="cjv3nktn00001moi71687paoo" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2019/01/28/Android应用集成Office文件能力完全攻略/" data-id="cjv3udbfb0000e5i7e3vtr66e" class="article-share-link">分享</a>
       
       
       
@@ -176,11 +175,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/04/02/Flutter状态管理学习手册[一]——ScopedModel/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">上一篇</strong>
       <div class="article-nav-title">
         
-          Flutter状态管理学习手册一——ScopedModel
+          Flutter状态管理学习手册[一]——ScopedModel
         
       </div>
     </a>
@@ -267,8 +266,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -300,28 +297,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

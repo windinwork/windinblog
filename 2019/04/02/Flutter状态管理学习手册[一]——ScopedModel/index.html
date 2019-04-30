@@ -3,19 +3,19 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Flutter状态管理学习手册一——ScopedModel | 千熊的博客</title>
+  <title>Flutter状态管理学习手册[一]——ScopedModel | 千熊的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="一、ScopedModel简介ScopedModel属于入门级别的状态管理框架，它的思想比较简单，参考官方文档便可以很容易理解其中构架。 在Flutter中Lifting state up(状态提升)是十分必要的，状态提升可以理解为把组件之间相互共享的状态提取出来放在一个较高层级中管理的一种思想。ScopedModel提供了对于这种状态管理的便利。 二、ScopedModel中的三个概念Scope">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Flutter状态管理学习手册一——ScopedModel">
-<meta property="og:url" content="http://windinpub.com/2019/04/02/Flutter状态管理学习手册一——ScopedModel/index.html">
+<meta property="og:title" content="Flutter状态管理学习手册[一]——ScopedModel">
+<meta property="og:url" content="http://windinpub.com/2019/04/02/Flutter状态管理学习手册[一]——ScopedModel/index.html">
 <meta property="og:site_name" content="千熊的博客">
 <meta property="og:description" content="一、ScopedModel简介ScopedModel属于入门级别的状态管理框架，它的思想比较简单，参考官方文档便可以很容易理解其中构架。 在Flutter中Lifting state up(状态提升)是十分必要的，状态提升可以理解为把组件之间相互共享的状态提取出来放在一个较高层级中管理的一种思想。ScopedModel提供了对于这种状态管理的便利。 二、ScopedModel中的三个概念Scope">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/2/169dcb52f5294fa4?w=400&h=720&f=gif&s=711487">
-<meta property="og:updated_time" content="2019-04-30T10:04:01.409Z">
+<meta property="og:updated_time" content="2019-04-30T13:40:18.453Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Flutter状态管理学习手册一——ScopedModel">
+<meta name="twitter:title" content="Flutter状态管理学习手册[一]——ScopedModel">
 <meta name="twitter:description" content="一、ScopedModel简介ScopedModel属于入门级别的状态管理框架，它的思想比较简单，参考官方文档便可以很容易理解其中构架。 在Flutter中Lifting state up(状态提升)是十分必要的，状态提升可以理解为把组件之间相互共享的状态提取出来放在一个较高层级中管理的一种思想。ScopedModel提供了对于这种状态管理的便利。 二、ScopedModel中的三个概念Scope">
 <meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/4/2/169dcb52f5294fa4?w=400&h=720&f=gif&s=711487">
   
@@ -56,8 +56,6 @@
         
           <a class="main-nav-link" href="/archives">归档</a>
         
-          <a class="main-nav-link" href="/about">关于</a>
-        
       </nav>
       
     </div>
@@ -70,9 +68,9 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-Flutter状态管理学习手册一——ScopedModel" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Flutter状态管理学习手册[一]——ScopedModel" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" class="article-date">
+    <a href="/2019/04/02/Flutter状态管理学习手册[一]——ScopedModel/" class="article-date">
   <time datetime="2019-04-02T10:00:36.000Z" itemprop="datePublished">2019-04-02</time>
 </a>
     
@@ -84,7 +82,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Flutter状态管理学习手册一——ScopedModel
+      Flutter状态管理学习手册[一]——ScopedModel
     </h1>
   
 
@@ -97,6 +95,7 @@
         <h3 id="一、ScopedModel简介"><a href="#一、ScopedModel简介" class="headerlink" title="一、ScopedModel简介"></a>一、ScopedModel简介</h3><p><code>ScopedModel</code>属于入门级别的状态管理框架，它的思想比较简单，参考官方文档便可以很容易理解其中构架。</p>
 <p>在<code>Flutter</code>中<code>Lifting state up</code>(状态提升)是十分必要的，状态提升可以理解为把组件之间相互共享的状态提取出来放在一个较高层级中管理的一种思想。<code>ScopedModel</code>提供了对于这种状态管理的便利。</p>
 <h3 id="二、ScopedModel中的三个概念"><a href="#二、ScopedModel中的三个概念" class="headerlink" title="二、ScopedModel中的三个概念"></a>二、ScopedModel中的三个概念</h3><p><code>ScopedModel</code>主要有三个重要的概念，也是其中的三个类：<code>Model</code>、<code>ScopedModel</code>和<code>ScopedModelDescendant</code>。<code>ScopedModel</code>基本上通过这三个类实现其功能。</p>
+<a id="more"></a>
 <p><code>Model</code>是封装状态和状态操作的地方。我们可以将想要的数据存放在<code>Model</code>当中并且将对数据操作，如添加删除的相关方法放在这里。<code>Model</code>还提供了一个<code>notifyListeners()</code>方法，它的作用是当数据发生改变时，可以通过调用<code>notifyListeners()</code>方法通知界面进行更新。</p>
 <p><code>ScopedModel</code>是一个用于保存<code>Model</code>的<code>Widget</code>。通常<code>ScopedModel</code>会一个应用的入口处作为父布局使用，并以<code>Model</code>作为参数传入，使得<code>ScopedModel</code>持有<code>Model</code>。</p>
 <p>在<code>ScopedModel</code>的子布局中，可以通过<code>ScopedModel.of&lt;Model&gt;(context)</code>方法来获取<code>Model</code>。</p>
@@ -128,7 +127,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" data-id="cjv3nktmt0000moi7c9b245fn" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2019/04/02/Flutter状态管理学习手册[一]——ScopedModel/" data-id="cjv3udbfh0001e5i7gs0qfm0n" class="article-share-link">分享</a>
       
       
       
@@ -180,11 +179,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2019/04/04/Flutter状态管理学习手册二——Redux/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/04/04/Flutter状态管理学习手册[二]——Redux/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">上一篇</strong>
       <div class="article-nav-title">
         
-          Flutter状态管理学习手册二——Redux
+          Flutter状态管理学习手册[二]——Redux
         
       </div>
     </a>
@@ -271,8 +270,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -304,28 +301,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

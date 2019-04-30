@@ -13,7 +13,7 @@
 <meta property="og:description" content="前言 一般的悬浮窗实现方式，需要申请权限，并还是要对部分机型进行适配才能正常显示。那么这里，我们换一种思路，实现一个不一样的悬浮窗。  一、应用内悬浮窗实现思路通常的悬浮窗是通过WindowManager直接添加的，在不同的Android系统上需要做不同的适配，在Android6.0以上的机型上，还需要引导用户跳转到设置界面手动开启悬浮窗权限。虽然这样实现悬浮窗有完整的解决方案，但是开启悬浮窗过程">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/8/12/1652e8d348c2bf56?w=400&h=720&f=gif&s=370345">
-<meta property="og:updated_time" content="2019-04-30T10:01:48.685Z">
+<meta property="og:updated_time" content="2019-04-30T13:38:32.060Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="非侵入式无权限应用内悬浮窗的实现">
 <meta name="twitter:description" content="前言 一般的悬浮窗实现方式，需要申请权限，并还是要对部分机型进行适配才能正常显示。那么这里，我们换一种思路，实现一个不一样的悬浮窗。  一、应用内悬浮窗实现思路通常的悬浮窗是通过WindowManager直接添加的，在不同的Android系统上需要做不同的适配，在Android6.0以上的机型上，还需要引导用户跳转到设置界面手动开启悬浮窗权限。虽然这样实现悬浮窗有完整的解决方案，但是开启悬浮窗过程">
@@ -56,8 +56,6 @@
         
           <a class="main-nav-link" href="/archives">归档</a>
         
-          <a class="main-nav-link" href="/about">关于</a>
-        
       </nav>
       
     </div>
@@ -99,6 +97,7 @@
 </blockquote>
 <h3 id="一、应用内悬浮窗实现思路"><a href="#一、应用内悬浮窗实现思路" class="headerlink" title="一、应用内悬浮窗实现思路"></a>一、应用内悬浮窗实现思路</h3><p>通常的悬浮窗是通过<code>WindowManager</code>直接添加的，在不同的Android系统上需要做不同的适配，在<code>Android</code>6.0以上的机型上，还需要引导用户跳转到设置界面手动开启悬浮窗权限。虽然这样实现悬浮窗有完整的解决方案，但是开启悬浮窗过程对用户并不是很友好。下面，我们换一种思路，去使用一个应用内悬浮窗，避免机型适配和权限申请的坑，让悬浮窗像普通的<code>View</code>一样显示在界面上。</p>
 <p>一般悬浮窗的实现方案是向系统<code>window</code>添加<code>type</code>为<code>TYPE_PHONE</code>或者<code>TYPE_TOAST</code>的<code>View</code>，从而使悬浮窗可以作为一个独立的<code>View</code>进行展示。<code>Android</code>对这一行为作了限制，那我们可以考虑从比较常规的途径添加<code>View</code>：向每一个展示界面，即<code>Activity</code>，添加一个<code>View</code>作为悬浮窗。这样，我们使用悬浮窗时就可以避免适配和权限问题。那么，怎么样实现这样的悬浮窗更好呢？</p>
+<a id="more"></a>
 <p>要实现这样一个悬浮窗，相当于我们要在<code>Activity</code>加载完后将悬浮窗的<code>View</code>添加的<code>Activity</code>上，我们不想在原有的Activity上插入这段代码，这时就可以利用<code>ActivityLifecycleCallbacks</code>和<code>fragment</code>的加载特性来完成一个无侵入式的悬浮窗的显示。</p>
 <p><img src="https://user-gold-cdn.xitu.io/2018/8/12/1652e8d348c2bf56?w=400&amp;h=720&amp;f=gif&amp;s=370345" alt></p>
 <h3 id="二、应用内悬浮窗的实现"><a href="#二、应用内悬浮窗的实现" class="headerlink" title="二、应用内悬浮窗的实现"></a>二、应用内悬浮窗的实现</h3><ol>
@@ -112,7 +111,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2018/08/12/非侵入式无权限应用内悬浮窗的实现/" data-id="cjv3nktnq0008moi7h2mwqd0b" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2018/08/12/非侵入式无权限应用内悬浮窗的实现/" data-id="cjv3udbg20008e5i752quf0uq" class="article-share-link">分享</a>
       
       
       
@@ -255,8 +254,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -288,28 +285,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

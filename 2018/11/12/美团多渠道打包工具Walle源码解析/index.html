@@ -14,7 +14,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/5/166e42d7cf64d61b?w=779&h=152&f=png&s=13494">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/11/8/166f3e381ff11f3e?w=690&h=156&f=png&s=17893">
-<meta property="og:updated_time" content="2019-04-30T10:05:17.093Z">
+<meta property="og:updated_time" content="2019-04-30T13:37:49.718Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="美团多渠道打包工具Walle源码解析">
 <meta name="twitter:description" content="笔者现在在负责一个新的Android项目，前期功能不太复杂，安装包的体积小，渠道要求也较少，所以打渠道包使用Android Studio自带的打包方法。原生方法打渠道包大约八分钟左右就搞定了，顺便可以悠闲地享受一下这种打包方式的乐趣。但是，随着重的功能的加入和渠道的增加，原生方法打渠道包就显得有点慢了，所以集成了美团的多渠道打包工具Walle，顺便看了一下里面的实现原理。  一、概述这一次的原理">
@@ -57,8 +57,6 @@
         
           <a class="main-nav-link" href="/archives">归档</a>
         
-          <a class="main-nav-link" href="/about">关于</a>
-        
       </nav>
       
     </div>
@@ -100,6 +98,7 @@
 </blockquote>
 <h3 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h3><p>这一次的原理分析仅仅针对<code>Android Signature V2 Scheme</code>。</p>
 <p>在上一家公司的时候，笔者所在的<code>Android</code>团队经历了<code>Android Signature V1</code>到<code>Android Signature V2</code>的变更，其中因为未及时从<code>V1</code>升级到<code>V2</code>而导致上线受阻，当时也紧急更换了新的多渠道打包工具来解决问题。在我自己使用多渠道打包工具时，不免对<code>V2</code>签名验证的方式有了一丝好奇，想去看看<code>V2</code>签名验证和多渠道打包的实现原理。</p>
+<a id="more"></a>
 <p>该文章先从安装包<code>V2</code>签名验证入手，再从打包过程中分析<code>Walle</code>是怎么绕过签名验证在安装包上加入渠道信息，最后看<code>Walle</code>怎么从应用中读取渠道信息。在这里我就不讲<code>Walle</code>的使用了，建议读者在看原理前先了解一下使用方式。</p>
 <h3 id="二、APK-Signature-Scheme-v2"><a href="#二、APK-Signature-Scheme-v2" class="headerlink" title="二、APK Signature Scheme v2"></a>二、APK Signature Scheme v2</h3><p><code>APK Signature Scheme v2</code>的签名验证，我们先从官方一张图入手</p>
 <p><img src="https://user-gold-cdn.xitu.io/2018/11/5/166e42d7cf64d61b?w=779&amp;h=152&amp;f=png&amp;s=13494" alt></p>
@@ -163,7 +162,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2018/11/12/美团多渠道打包工具Walle源码解析/" data-id="cjv3nktnm0006moi76ylhkz37" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2018/11/12/美团多渠道打包工具Walle源码解析/" data-id="cjv3udbfz0006e5i7fh5kov76" class="article-share-link">分享</a>
       
       
       
@@ -306,8 +305,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -339,28 +336,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>

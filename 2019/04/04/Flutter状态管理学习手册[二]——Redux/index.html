@@ -3,20 +3,20 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>Flutter状态管理学习手册二——Redux | 千熊的博客</title>
+  <title>Flutter状态管理学习手册[二]——Redux | 千熊的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="上一篇讲到了一个简单的状态管理架构—— ScopedModel , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：https://github.com/windinwork/flutter_redux_app  一、Redux 的准备工作Redux 的概念源于 React，对于不是从事前端工作或者没有接">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Flutter状态管理学习手册二——Redux">
-<meta property="og:url" content="http://windinpub.com/2019/04/04/Flutter状态管理学习手册二——Redux/index.html">
+<meta property="og:title" content="Flutter状态管理学习手册[二]——Redux">
+<meta property="og:url" content="http://windinpub.com/2019/04/04/Flutter状态管理学习手册[二]——Redux/index.html">
 <meta property="og:site_name" content="千熊的博客">
 <meta property="og:description" content="上一篇讲到了一个简单的状态管理架构—— ScopedModel , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：https://github.com/windinwork/flutter_redux_app  一、Redux 的准备工作Redux 的概念源于 React，对于不是从事前端工作或者没有接">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e7200b2f3f0ad?w=760&h=392&f=png&s=12109">
 <meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e66de9a14380d?w=370&h=672&f=gif&s=603185">
-<meta property="og:updated_time" content="2019-04-30T10:04:17.484Z">
+<meta property="og:updated_time" content="2019-04-30T13:40:25.084Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Flutter状态管理学习手册二——Redux">
+<meta name="twitter:title" content="Flutter状态管理学习手册[二]——Redux">
 <meta name="twitter:description" content="上一篇讲到了一个简单的状态管理架构—— ScopedModel , 当然，这种简单的架构会用在商业项目中的概率比较小，本篇则讲述另一个架构： Redux ，一个优雅且实用的状态管理框架。本篇 Demo 地址：https://github.com/windinwork/flutter_redux_app  一、Redux 的准备工作Redux 的概念源于 React，对于不是从事前端工作或者没有接">
 <meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e7200b2f3f0ad?w=760&h=392&f=png&s=12109">
   
@@ -57,8 +57,6 @@
         
           <a class="main-nav-link" href="/archives">归档</a>
         
-          <a class="main-nav-link" href="/about">关于</a>
-        
       </nav>
       
     </div>
@@ -71,9 +69,9 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-Flutter状态管理学习手册二——Redux" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Flutter状态管理学习手册[二]——Redux" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/04/04/Flutter状态管理学习手册二——Redux/" class="article-date">
+    <a href="/2019/04/04/Flutter状态管理学习手册[二]——Redux/" class="article-date">
   <time datetime="2019-04-04T10:00:56.000Z" itemprop="datePublished">2019-04-04</time>
 </a>
     
@@ -85,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Flutter状态管理学习手册二——Redux
+      Flutter状态管理学习手册[二]——Redux
     </h1>
   
 
@@ -102,6 +100,7 @@
 <p><a href="http://www.ruanyifeng.com/blog/2016/09/redux_tutorial_part_one_basic_usages.html" target="_blank" rel="noopener">Redux 入门教程（一）：基本用法</a></p>
 <p><a href="http://www.ruanyifeng.com/blog/2016/09/redux_tutorial_part_two_async_operations.html" target="_blank" rel="noopener">Redux 入门教程（二）：中间件与异步操作</a></p>
 <h3 id="二、Redux的概念"><a href="#二、Redux的概念" class="headerlink" title="二、Redux的概念"></a>二、Redux的概念</h3><p>学习后 Redux 可以了解到，Redux 主要由涉及下面几种概念：</p>
+<a id="more"></a>
 <ul>
 <li>Store，是保存数据的地方。整个应用只能有一个 Store 。Store 有十分重要的方法 dispatch(action) 来发送 Action。</li>
 <li>State，是某个时间点的数据快照， 一个 State 对应一个 View。只要 State 相同，View 就相同。</li>
@@ -170,7 +169,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://windinpub.com/2019/04/04/Flutter状态管理学习手册二——Redux/" data-id="cjv3nktna0003moi7898o9u47" class="article-share-link">分享</a>
+      <a data-url="http://windinpub.com/2019/04/04/Flutter状态管理学习手册[二]——Redux/" data-id="cjv3udbfn0002e5i76oc99fb1" class="article-share-link">分享</a>
       
       
       
@@ -223,9 +222,9 @@
 <nav id="article-nav">
   
   
-    <a href="/2019/04/02/Flutter状态管理学习手册一——ScopedModel/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/04/02/Flutter状态管理学习手册[一]——ScopedModel/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">下一篇</strong>
-      <div class="article-nav-title">Flutter状态管理学习手册一——ScopedModel</div>
+      <div class="article-nav-title">Flutter状态管理学习手册[一]——ScopedModel</div>
     </a>
   
 </nav>
@@ -304,8 +303,6 @@
   
     <a href="/archives" class="mobile-nav-link">归档</a>
   
-    <a href="/about" class="mobile-nav-link">关于</a>
-  
 </nav>
     <img class="back-to-top-btn" src="/images/fly-to-top.png">
 <script>
@@ -337,28 +334,6 @@ window.onload = function() {
 
 <!-- author:forvoid end -->
 
-
-  
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-          processEscapes: true,
-          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-      })
-    </script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-      })
-    </script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
 
 
  <script src="/js/is.js"></script>
