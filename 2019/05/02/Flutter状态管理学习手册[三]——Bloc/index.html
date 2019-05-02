@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+  <title>Flutter状态管理学习手册[三]——Bloc | 千熊的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="一、Bloc 介绍Bloc 的名字比较新颖，这个状态管理框架的目的是将 UI 层和业务逻辑进行分离。Bloc 的复杂度处于 ScopedModel 和 Redux 之间，相较于 ScopedModel，Bloc 拥有分明的架构处于业务逻辑，相较于 Redux，Bloc 着重于业务逻辑的分解，使得整个框架对于开发来讲简单实用。 二、Bloc 的层次结构Bloc 分为三层：  Data Layer(数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter状态管理学习手册[三]——Bloc">
+<meta property="og:url" content="http://windinpub.com/2019/05/02/Flutter状态管理学习手册[三]——Bloc/index.html">
+<meta property="og:site_name" content="千熊的博客">
+<meta property="og:description" content="一、Bloc 介绍Bloc 的名字比较新颖，这个状态管理框架的目的是将 UI 层和业务逻辑进行分离。Bloc 的复杂度处于 ScopedModel 和 Redux 之间，相较于 ScopedModel，Bloc 拥有分明的架构处于业务逻辑，相较于 Redux，Bloc 着重于业务逻辑的分解，使得整个框架对于开发来讲简单实用。 二、Bloc 的层次结构Bloc 分为三层：  Data Layer(数">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e7920036aa4a9?w=1589&h=292&f=png&s=59753">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/15/16a1f88c7228f97b?w=422&h=768&f=gif&s=871567">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2019/4/15/16a1f988412eb98d?w=202&h=130&f=png&s=2565">
+<meta property="og:updated_time" content="2019-05-02T08:07:21.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter状态管理学习手册[三]——Bloc">
+<meta name="twitter:description" content="一、Bloc 介绍Bloc 的名字比较新颖，这个状态管理框架的目的是将 UI 层和业务逻辑进行分离。Bloc 的复杂度处于 ScopedModel 和 Redux 之间，相较于 ScopedModel，Bloc 拥有分明的架构处于业务逻辑，相较于 Redux，Bloc 着重于业务逻辑的分解，使得整个框架对于开发来讲简单实用。 二、Bloc 的层次结构Bloc 分为三层：  Data Layer(数">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2019/4/4/169e7920036aa4a9?w=1589&h=292&f=png&s=59753">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    
+    <div id="header-inner" class="inner">
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://windinpub.com"></form>
+      </div>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">千熊的博客</a>
+      </h1>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flutter状态管理学习手册[三]——Bloc" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/02/Flutter状态管理学习手册[三]——Bloc/" class="article-date">
+  <time datetime="2019-05-02T08:06:46.000Z" itemprop="datePublished">2019-05-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flutter状态管理学习手册[三]——Bloc
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+        <h3 id="一、Bloc-介绍"><a href="#一、Bloc-介绍" class="headerlink" title="一、Bloc 介绍"></a>一、Bloc 介绍</h3><p>Bloc 的名字比较新颖，这个状态管理框架的目的是将 UI 层和业务逻辑进行分离。Bloc 的复杂度处于 ScopedModel 和 Redux 之间，相较于 ScopedModel，Bloc 拥有分明的架构处于业务逻辑，相较于 Redux，Bloc 着重于业务逻辑的分解，使得整个框架对于开发来讲简单实用。</p>
+<h3 id="二、Bloc-的层次结构"><a href="#二、Bloc-的层次结构" class="headerlink" title="二、Bloc 的层次结构"></a>二、Bloc 的层次结构</h3><p>Bloc 分为三层：</p>
+<ul>
+<li>Data Layer(数据层)，用于提供数据。</li>
+<li>Bloc(Business Logic) Layer(业务层)，通过继续 Bloc 类实现，用于处理业务逻辑。</li>
+<li>Presentation Layer(表现层)，用于 UI 构建。</li>
+</ul>
+<p>Presentation Layer 只与 Bloc Layer 交互，Data Laye 也只与 Bloc Layer 交互。Bloc Layer 作为重要一层，处于表现层和数据层之间，使得 UI 和数据通过 Bloc Layer 进行交互。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/4/169e7920036aa4a9?w=1589&amp;h=292&amp;f=png&amp;s=59753" alt></p>
+<p>由此可见，Bloc 的架构和客户端主流的 MVC 和 MVP 架构比较相似，但也存在 Event 和 State 的概念一同构成响应式框架。</p>
+<h3 id="三、Bloc-需要知道的概念"><a href="#三、Bloc-需要知道的概念" class="headerlink" title="三、Bloc 需要知道的概念"></a>三、Bloc 需要知道的概念</h3><p>BlocProvider，通常做为 App 的根布局。BlocProvider 可以保存 Bloc，在其它页面通过<code>BlocProvider.of&lt;Bloc&gt;(context)</code>获取 Bloc。</p>
+<p>Event，用户操作 UI 后发出的事件，用于通知 Bloc 层事件发生。</p>
+<p>State，页面状态，可用于构建 UI。通常是 Bloc 将接收到的 Event 转化为 State。</p>
+<p>Bloc 架构的核心是 Bloc 类，Bloc 类是一个抽象类，有一个 <code>mapEventToState（event）</code>方法需要实现。<code>mapEventToState（event）</code>顾名思义，就是将用户点击 View 时发出的 event 转化为构建 UI 所用的 State。另外，在 StatefulWidget 中使用 bloc 的话，在 widget dispose 时，要调用 <code>bloc.dispose()</code>方法进行释放。</p>
+<h3 id="四、Bloc-的实践"><a href="#四、Bloc-的实践" class="headerlink" title="四、Bloc 的实践"></a>四、Bloc 的实践</h3><p>这里以常见的获取列表选择列表为例子。一个页面用于展示选中项和跳转到列表，一个页面用于显示列表。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/15/16a1f88c7228f97b?w=422&amp;h=768&amp;f=gif&amp;s=871567" alt></p>
+<ol>
+<li>引入 Redux 的第三方库</li>
+</ol>
+<p>在 <code>pubspec.yaml</code> 文件中引入 <code>flutter_bloc</code> 第三方库支持 bloc 功能。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 引入 bloc 第三方库</span><br><span class="line">flutter_bloc: ^0.9.0</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>使用 Bloc 插件</li>
+</ol>
+<p>这一步可有可无，但使用插件会方便开发，不使用的话也没什么问题。</p>
+<p>Bloc 官方提供了 VSCode 和 Android studio 的插件，方便生成 Bloc 框架用到的相关类。<br>下文以 Android studio 的插件为例。</p>
+<p>比如 list 页面，该插件会生成相应的类</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/15/16a1f988412eb98d?w=202&amp;h=130&amp;f=png&amp;s=2565" alt></p>
+<p>从生成的五个文件中也可以看到，<code>list_bloc</code> 负责承载业务逻辑，<code>list_page</code> 负责编写 UI 界面，<code>list_event</code> 和 <code>list_state</code> 分别是事件和状态，其中 <code>list.dart</code> 文件是用于导出前面四个文件的。</p>
+<p>具体使用可见</p>
+<p><a href="https://felangel.github.io/bloc/#/blocintellijextension" target="_blank" rel="noopener">Android studio 的 Bloc 插件</a></p>
+<p><a href="https://felangel.github.io/bloc/#/blocvscodeextension" target="_blank" rel="noopener">VSCode 的 Bloc 插件</a></p>
+<ol start="3">
+<li>使用 BlocProvider 作为根布局</li>
+</ol>
+<p>在 <code>main.dart</code> 中，使用 BlocProvider 作为父布局包裹，用于传递需要的 bloc。Demo 中包含两个页面，一个是展示页面 ShowPage，一个是列表页面 ListPage。</p>
+<p>上面讲到，Bloc 的核心功能在于 Bloc 类，对于展示页面 ShowPage，会有一个 ShowBloc 继续自 Bloc 类。由于展示页面 ShowPage 会和列表页面 ListPage 有数据的互动，所以这里将 ShowBloc 保存在 BlocProvider 中进行传递。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@override</span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    return BlocProvider(</span><br><span class="line">        bloc: _showBloc,</span><br><span class="line">        child: MaterialApp(</span><br><span class="line">            title: &apos;Flutter Demo&apos;,</span><br><span class="line">            theme: ThemeData(</span><br><span class="line">              primarySwatch: Colors.blue,</span><br><span class="line">            ),</span><br><span class="line">            home: ShowPage()));</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>展示页面 ShowPage</li>
+</ol>
+<p>① ShowEvent</p>
+<p>列表的 item 点击后，需要发送一个 event 通知其它页面列表被选中，这里定义一个 SelectShowEvent 作为这种 event 通知。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class SelectShowEvent extends ShowEvent &#123;</span><br><span class="line">  String selected;</span><br><span class="line"></span><br><span class="line">  SelectShowEvent(this.selected);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>② ShowState</p>
+<p>State 用于表示一种界面状态，即一个 State 就对应一个界面。插件在一开始会生成一个默认状态，InitialShowState。我们可以使用 InitialShowState 来代表初始的界面。另外，我们自己定义一种状态，SelectedShowState，代表选中列表后的 State。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@immutable</span><br><span class="line">abstract class ShowState &#123;&#125;</span><br><span class="line"></span><br><span class="line">class InitialShowState extends ShowState &#123;&#125;</span><br><span class="line"></span><br><span class="line">class SelectedShowState extends ShowState &#123;</span><br><span class="line">  String _selectedString = &quot;&quot;;</span><br><span class="line"></span><br><span class="line">  String get selected =&gt; _selectedString;</span><br><span class="line"></span><br><span class="line">  SelectedShowState(this._selectedString);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>③ ShowBloc</p>
+<p>Bloc 的主要职责是接收 Event，然后把 Event 转化为对应的 State。这里的 ShowBloc 继续自 Bloc，需要重写实现抽象方法 <code>mapEventToState(event)</code>。在这个方法中，我们判断传过来的 event 是不是 SelectShowEvent，是则拿到 SelectShowEvent 中的 selected 变量去构建 SelectedShowState。<code>mapEventToState(event)</code>返回的是一个 Stream，我们通过 yield 关键字去返回一个 SelectedShowState。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class ShowBloc extends Bloc&lt;ShowEvent, ShowState&gt; &#123;</span><br><span class="line">  @override</span><br><span class="line">  ShowState get initialState =&gt; InitialShowState();</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  Stream&lt;ShowState&gt; mapEventToState(</span><br><span class="line">    ShowEvent event,</span><br><span class="line">  ) async* &#123;</span><br><span class="line">    if (event is SelectShowEvent) &#123;</span><br><span class="line">      yield SelectedShowState(event.selected);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>④ ShowPage</p>
+<p>在 ShowPage 的界面上，我们需要根据 showBloc 中是否有被选中的列表项目去展于页面，所以这里我们先使用使用<code>BlocProvider.of&lt;ShowBloc&gt;(context)</code>去拿到 showBloc，接着再用 BlocBuilder 根据 showBloc 构建界面。使用 BlocBuilder 的好处就是可以让页面自动响应 showBloc 的变化而变化。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">var showBloc = BlocProvider.of&lt;ShowBloc&gt;(context);</span><br><span class="line">...</span><br><span class="line">BlocBuilder(</span><br><span class="line">    bloc: showBloc,</span><br><span class="line">    builder: (context, state) &#123;</span><br><span class="line">      if (state is SelectedShowState) &#123;</span><br><span class="line">        return Text(state.selected);</span><br><span class="line">      &#125;</span><br><span class="line">      return Text(&quot;&quot;);</span><br><span class="line">    &#125;),</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>列表页面 ListPage</li>
+</ol>
+<p>① ListEvent</p>
+<p>列表页面，我们一开始需要从网络中拉取列表数据，所以定义一个 FetchListEvent 事件在进入页面时通知 ListBloc 去获取列表。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@immutable</span><br><span class="line">abstract class ListEvent extends Equatable &#123;</span><br><span class="line">  ListEvent([List props = const []]) : super(props);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class FetchListEvent extends ListEvent &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>② ListState</p>
+<p>InitialListState 是插件默认生成的初始状态，另外定义一个 FetchListState 代表获取列表完成的状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@immutable</span><br><span class="line">abstract class ListState extends Equatable &#123;</span><br><span class="line">  ListState([List props = const []]) : super(props);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class InitialListState extends ListState &#123;&#125;</span><br><span class="line"></span><br><span class="line">class FetchListState extends ListState &#123;</span><br><span class="line"></span><br><span class="line">  List&lt;String&gt; _list = [];</span><br><span class="line"></span><br><span class="line">  UnmodifiableListView&lt;String&gt; get list =&gt; UnmodifiableListView(_list);</span><br><span class="line"></span><br><span class="line">  FetchListState(this._list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>③ ListBloc</p>
+<p>在 ListBloc 中，进行从网络获取列表数据的业务。这里通过一个延时操作摸拟网络请求，最后用 yield 返回列表数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class ListBloc extends Bloc&lt;ListEvent, ListState&gt; &#123;</span><br><span class="line">  @override</span><br><span class="line">  ListState get initialState =&gt; InitialListState();</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  Stream&lt;ListState&gt; mapEventToState(</span><br><span class="line">    ListEvent event,</span><br><span class="line">  ) async* &#123;</span><br><span class="line">    if (event is FetchListEvent) &#123;</span><br><span class="line">      // 模拟网络请求</span><br><span class="line">      await Future.delayed(Duration(milliseconds: 2000));</span><br><span class="line">      var list = [</span><br><span class="line">        &quot;1. Bloc artitechture&quot;,</span><br><span class="line">        &quot;2. Bloc artitechture&quot;,</span><br><span class="line">        &quot;3. Bloc artitechture&quot;,</span><br><span class="line">        &quot;4. Bloc artitechture&quot;,</span><br><span class="line">        &quot;5. Bloc artitechture&quot;,</span><br><span class="line">        &quot;6. Bloc artitechture&quot;,</span><br><span class="line">        &quot;7. Bloc artitechture&quot;,</span><br><span class="line">        &quot;8. Bloc artitechture&quot;,</span><br><span class="line">        &quot;9. Bloc artitechture&quot;,</span><br><span class="line">        &quot;10. Bloc artitechture&quot;</span><br><span class="line">      ];</span><br><span class="line"></span><br><span class="line">      yield FetchListState(list);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>④ ListPage</p>
+<p>在列表页面初始化时有两个操作，一个是初始化 listBloc，一个是发出列表请求的 Event。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@override</span><br><span class="line">void initState() &#123;</span><br><span class="line">  bloc = ListBloc(); // 初始化listBloc</span><br><span class="line">  bloc.dispatch(FetchListEvent()); // 发出列表请求事件</span><br><span class="line">  super.initState();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接下用，便是用 BlocBuilder 去响应状态。当 state 是 InitialListState，说明未获取列表，则显示 loading 界面，当 state 是 FetchListState 时，说明已经成功获取列表，显示列表界面。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">body: BlocBuilder(</span><br><span class="line">    bloc: bloc,</span><br><span class="line">    builder: (context, state) &#123;</span><br><span class="line">      // 根据状态显示界面</span><br><span class="line">      if (state is InitialListState) &#123;</span><br><span class="line">        // 显示 loading 界面</span><br><span class="line">        return buildLoad();</span><br><span class="line">      &#125; else if (state is FetchListState) &#123;</span><br><span class="line">        // 显示列表界面</span><br><span class="line">        var list = state.list;</span><br><span class="line">        return buildList(list);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;));</span><br></pre></td></tr></table></figure>
+<p>最后，记得对 bloc 进行 <code>dispose()</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@override</span><br><span class="line">void dispose() &#123;</span><br><span class="line">  bloc.dispose();</span><br><span class="line">  super.dispose();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体代码可以到<a href="https://github.com/windinwork/bloc_app" target="_blank" rel="noopener"> github </a>查看。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>在 Bloc 的架构中，将一个页面和一个 Bloc 相结合，由页面产生 Event，Bloc 根据业务需要将 Event 转化为 State，再把 State 交给页面中的 BlocBuilder 构建 UI。Demo 中只是给出了简单的状态管理，实际项目中，比如网络请求，有请求中、请求成功、请求失败的多种状态，可以做适当封装使 Bloc 更加易用。相比于 Redux，Bloc 不需要将所有状态集中管理，这样对于不同模块的页面易于拆分，对于代码量比较大的客户端而言，Bloc 的架构会相对比较友好。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://windinpub.com/2019/05/02/Flutter状态管理学习手册[三]——Bloc/" data-id="cjv6d9l920000ebi7vbtwtgw9" class="article-share-link">分享</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+ <script src="/jquery/jquery.min.js"></script>
+  <div id="random_posts">
+    <h2>推荐文章</h2>
+    <div class="random_posts_ul">
+      <script>
+          var random_count =4
+          var site = {BASE_URI:'/'};
+          function load_random_posts(obj) {
+              var arr=site.posts;
+              if (!obj) return;
+              // var count = $(obj).attr('data-count') || 6;
+              for (var i, tmp, n = arr.length; n; i = Math.floor(Math.random() * n), tmp = arr[--n], arr[n] = arr[i], arr[i] = tmp);
+              arr = arr.slice(0, random_count);
+              var html = '<ul>';
+            
+              for(var j=0;j<arr.length;j++){
+                var item=arr[j];
+                html += '<li><strong>' + 
+                item.date + ':&nbsp;&nbsp;<a href="' + (site.BASE_URI+item.uri) + '">' + 
+                (item.title || item.uri) + '</a></strong>';
+                if(item.excerpt){
+                  html +='<div class="post-excerpt">'+item.excerpt+'</div>';
+                }
+                html +='</li>';
+                
+              }
+              $(obj).html(html + '</ul>');
+          }
+          $('.random_posts_ul').each(function () {
+              var c = this;
+              if (!site.posts || !site.posts.length){
+                  $.getJSON(site.BASE_URI + 'js/posts.js',function(json){site.posts = json;load_random_posts(c)});
+              } 
+               else{
+                load_random_posts(c);
+              }
+          });
+      </script>
+    </div>
+  </div>
+
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/04/04/Flutter状态管理学习手册[二]——Redux/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">Flutter状态管理学习手册[二]——Redux</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+ 
+     
+  <div class="comments" id="comments">
+    
+     
+       
+       
+      
+      
+  </div>
+ 
+  
+
+</section>
+           
+    <aside id="sidebar">
+  
+    
+
+  
+    
+    <div class="widget-wrap">
+    
+      <div class="widget" id="toc-widget-fixed">
+      
+        <strong class="toc-title">文章目录</strong>
+        <div class="toc-widget-list">
+              <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、Bloc-介绍"><span class="toc-number">1.</span> <span class="toc-text">一、Bloc 介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、Bloc-的层次结构"><span class="toc-number">2.</span> <span class="toc-text">二、Bloc 的层次结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、Bloc-需要知道的概念"><span class="toc-number">3.</span> <span class="toc-text">三、Bloc 需要知道的概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、Bloc-的实践"><span class="toc-number">4.</span> <span class="toc-text">四、Bloc 的实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+          </div>
+      </div>
+    </div>
+
+  
+    
+
+  
+    
+  
+    
+  
+    
+
+  
+    
+  
+    <!--微信公众号二维码-->
+
+
+  
+</aside>
+
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-left">
+      &copy; 2014 - 2019 windin&nbsp;|&nbsp;
+      主题 <a href="https://github.com/giscafer/hexo-theme-cafe/" target="_blank">Cafe</a>
+    </div>
+     <div id="footer-right">
+      联系方式&nbsp;|&nbsp;windinwork@gmail.com
+    </div>
+  </div>
+</footer>
+ <script src="/jquery/jquery.min.js"></script>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    <img class="back-to-top-btn" src="/images/fly-to-top.png">
+<script>
+// Elevator script included on the page, already.
+window.onload = function() {
+  var elevator = new Elevator({
+    selector:'.back-to-top-btn',
+    element: document.querySelector('.back-to-top-btn'),
+    duration: 1000 // milliseconds
+  });
+}
+</script>
+      
+
+  
+
+  
+
+
+
+
+
+
+
+<!-- author:forvoid begin -->
+<!-- author:forvoid begin -->
+
+<!-- author:forvoid end -->
+
+<!-- author:forvoid end -->
+
+
+
+ <script src="/js/is.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+<script src="/js/elevator.js"></script>
+  </div>
+</body>
+</html>
